@@ -2,7 +2,7 @@ import scrapy
 import random
 from fake_useragent import UserAgent
 import time
-# from items import GPItem
+from ..items import GPItem
 
 
 class NhsspiderSpider(scrapy.Spider):
@@ -25,14 +25,14 @@ class NhsspiderSpider(scrapy.Spider):
             location_url = place.attrib['href']
             locname = place.css('::text').get()
             # yield {'locname': locname}
-            time.sleep(random.uniform(0.5, 1))
+            time.sleep(random.uniform(0.2, 0.5))
             yield response.follow(location_url, callback=self.parse_place_page, cb_kwargs={'locname': locname}, headers={"User-Agent": self.ua.random})
 
         # from page 1 to last page
         has_next_page = response.css('.next a')
         if has_next_page:
             next_page = 'https://www.nhs.uk' + has_next_page.attrib['href']
-            time.sleep(random.uniform(0.5, 1))
+            time.sleep(random.uniform(0.2, 0.5))
             yield response.follow(next_page, callback=self.parse, headers={"User-Agent": self.ua.random})
 
         # from 'A' to 'Z'
@@ -48,18 +48,18 @@ class NhsspiderSpider(scrapy.Spider):
     def parse_place_page(self, response, locname):
         gps = response.css('.fctitle a::text')
 
-        # gp_item = GPItem()
+        gp_item = GPItem()
         for gp in gps:
-            yield {
-                'gp': gp.get(),
-                'locname': locname
-            }
-            # gp_item['gp'] = gp.get()
-            # gp_item['locname'] = locname
-            # yield gp_item
+            # yield {
+            #     'gp': gp.get(),
+            #     'locname': locname
+            # }
+            gp_item['gp'] = gp.get()
+            gp_item['locname'] = locname
+            yield gp_item
 
         has_next_page = response.css('.next a')
         if has_next_page:
             next_page = 'https://www.nhs.uk' + has_next_page.attrib['href']
-            time.sleep(random.uniform(0.5, 1))
+            time.sleep(random.uniform(0.2, 0.5))
             yield response.follow(next_page, callback=self.parse_place_page, cb_kwargs={'locname': locname}, headers={"User-Agent": self.ua.random})

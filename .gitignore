@@ -1,6 +1,8 @@
 
+*.pyc
 .ipynb_checkpoints/test-checkpoint.py
 scrapy/venv/Lib/site-packages/fake_useragent/data/browsers.json
-*.pyc
-*.pyc
-*.pyc
+.ipynb_checkpoints/Untitled-checkpoint.ipynb
+
+scrapy/scraper/scraper/__pycache__/pipelines.cpython-310.pyc
+scrapy/scraper/scraper/__pycache__/settings.cpython-310.pyc

@@ -7,6 +7,7 @@
 # useful for handling different item types with a single interface
 import mysql.connector
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
 
 class ScraperPipeline:
@@ -14,12 +15,29 @@ class ScraperPipeline:
         return item
 
 
+class DuplicatesPipeline:
+    def __init__(self):
+        self.stored_data = set()
+
+    def process_item(self, item, spider):
+        # drop duplicate rows
+        # there can be multiple GPs with the same names in the same place
+        # only keep one unique GP for each place
+        adapter = ItemAdapter(item)
+        gp_loc_pair = (adapter['gp'], adapter['locname'])
+        if gp_loc_pair in self.stored_data:
+            raise DropItem(f"Duplicate pair found: {item}")
+        else:
+            self.stored_data.add((adapter['gp'], adapter['locname']))
+            return item
+
+
 class SaveToMySQLPipeline:
     def __init__(self):
         self.conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            passward='',
+            password='',
             database='nhs'
         )
 
@@ -28,18 +46,18 @@ class SaveToMySQLPipeline:
 
         # create nhs table if not exists
         self.cur.execute("""
-        CREATE TABLE IF NOT EXISTS nhs(
+        CREATE TABLE IF NOT EXISTS gp_loc(
             id int NOT NULL auto_increment,
             gp VARCHAR(255),
             locname VARCHAR(255),
-            url VARCHAR(255)
+            PRIMARY KEY (id)
         )
         """)
 
     def process_item(self, item, spider):
         # insert
-        self.cur.execute("""INSERT INTO nhs(gp, locname, url) values (%s, %s, %s)""",
-                         (item['gp'], item['locame'], item['url']))
+        self.cur.execute("""INSERT INTO gp_loc(gp, locname) values (%s, %s)""",
+                         (item['gp'], item['locname']))
         self.conn.commit()
         return item
 
