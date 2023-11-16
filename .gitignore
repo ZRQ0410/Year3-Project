@@ -6,3 +6,5 @@ scrapy/venv/Lib/site-packages/fake_useragent/data/browsers.json
 
 scrapy/scraper/scraper/__pycache__/pipelines.cpython-310.pyc
 scrapy/scraper/scraper/__pycache__/settings.cpython-310.pyc
+test.py
+Untitled.ipynb
