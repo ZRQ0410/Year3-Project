@@ -13,6 +13,7 @@ import os
 
 
 def init_df():
+    # current directory may change
     data = pd.read_csv('scraper/nhsdata.csv')
     gp_df = pd.DataFrame(columns=['gp', 'nhs_url'])
     gp_df['gp'] = data['gp'].unique()
@@ -51,8 +52,9 @@ def scrape_nhs_link(gp):
         By.ID, "search").find_elements(By.TAG_NAME, 'a')
     for i in range(10):
         link = results[i].get_attribute('href')
+        # only store the link which contains 'services/gp-surgery', make sure to get nhs overview related page
         if 'www.nhs.uk/services/gp-surgery' in link:
-            print(link)
+            # print(link)
             return link
     else:
         return None

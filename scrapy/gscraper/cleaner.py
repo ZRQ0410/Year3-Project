@@ -18,6 +18,7 @@ class Cleaner:
 
     def __remove_review(url):
         # remove the review part, convert it to the url of the overview page
+        # eg. https://www.nhs.uk/services/gp-surgery/diamond-health-group/X41823/ratings-and-reviews?currentpage=3 => https://www.nhs.uk/services/gp-surgery/diamond-health-group/X41823
         s1 = "/leave-a-review"
         s2 = "/ratings-and-reviews"
         if s1 in url or s2 in url:
