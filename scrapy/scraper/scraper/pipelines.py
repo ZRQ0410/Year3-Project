@@ -20,15 +20,14 @@ class DuplicatesPipeline:
         self.stored_data = set()
 
     def process_item(self, item, spider):
-        # drop duplicate rows
-        # there can be multiple GPs with the same names in the same place
-        # only keep one unique GP for each place
+        # drop duplicate GPs
+        # when gp names are the same & postcode are the same
         adapter = ItemAdapter(item)
-        gp_loc_pair = (adapter['gp'], adapter['locname'])
-        if gp_loc_pair in self.stored_data:
+        gp_code_pair = (adapter['gp'], adapter['postcode'])
+        if gp_code_pair in self.stored_data:
             raise DropItem(f"Duplicate pair found: {item}")
         else:
-            self.stored_data.add((adapter['gp'], adapter['locname']))
+            self.stored_data.add((adapter['gp'], adapter['postcode']))
             return item
 
 
@@ -37,7 +36,8 @@ class SaveToMySQLPipeline:
         self.conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='',
+            # add password
+            password='a1292732905',
             database='nhs'
         )
 
@@ -46,18 +46,19 @@ class SaveToMySQLPipeline:
 
         # create nhs table if not exists
         self.cur.execute("""
-        CREATE TABLE IF NOT EXISTS gp_loc(
+        CREATE TABLE IF NOT EXISTS gp_table(
             id int NOT NULL auto_increment,
             gp VARCHAR(255),
             locname VARCHAR(255),
+            postcode VARCHAR(255),
             PRIMARY KEY (id)
         )
         """)
 
     def process_item(self, item, spider):
         # insert
-        self.cur.execute("""INSERT INTO gp_loc(gp, locname) values (%s, %s)""",
-                         (item['gp'], item['locname']))
+        self.cur.execute("""INSERT INTO gp_table(gp, locname, postcode) values (%s, %s, %s)""",
+                         (item['gp'], item['locname'], item['postcode']))
         self.conn.commit()
         return item
 

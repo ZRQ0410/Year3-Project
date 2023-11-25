@@ -23,10 +23,10 @@ class NhsspiderSpider(scrapy.Spider):
         places = response.css('.fclist-section li a')
         for place in places:
             location_url = place.attrib['href']
-            locname = place.css('::text').get()
-            # yield {'locname': locname}
+            # location = place.css('::text').get()
             time.sleep(random.uniform(0.2, 0.5))
-            yield response.follow(location_url, callback=self.parse_place_page, cb_kwargs={'locname': locname}, headers={"User-Agent": self.ua.random})
+            yield response.follow(location_url, callback=self.parse_place_page, headers={"User-Agent": self.ua.random})
+            # yield {'location': location}
 
         # from page 1 to last page
         has_next_page = response.css('.next a')
@@ -45,21 +45,29 @@ class NhsspiderSpider(scrapy.Spider):
             next_letter = 'https://www.nhs.uk/service-search/other-services/GP/Location/Places/' + letter + '/4'
             yield response.follow(next_letter, callback=self.parse, headers={"User-Agent": self.ua.random})
 
-    def parse_place_page(self, response, locname):
+    def parse_place_page(self, response):
         gps = response.css('.fctitle a::text')
+        address = response.css('.fcaddress')
 
         gp_item = GPItem()
-        for gp in gps:
-            # yield {
-            #     'gp': gp.get(),
-            #     'locname': locname
-            # }
-            gp_item['gp'] = gp.get()
-            gp_item['locname'] = locname
-            yield gp_item
+        # assume each gp has a corresponding address
+        # if num of gp != num of address, skip this page
+        if len(gps) == len(address):
+            for gp, add in zip(gps, address):
+                gp_item['gp'] = gp.get()
+                detail = add.get().split('<br>\r\n')
+                # ['<p class="fcaddress">\r\nThe Surgery',
+                # '    Gillingham Road',
+                # '    Silton',
+                # '    Gillingham',
+                # '     Dorset',
+                # '    SP8 5DF    </p>']
+                gp_item['locname'] = detail[-2].strip()
+                gp_item['postcode'] = detail[-1][:-4].strip()
+                yield gp_item
 
         has_next_page = response.css('.next a')
         if has_next_page:
             next_page = 'https://www.nhs.uk' + has_next_page.attrib['href']
             time.sleep(random.uniform(0.2, 0.5))
-            yield response.follow(next_page, callback=self.parse_place_page, cb_kwargs={'locname': locname}, headers={"User-Agent": self.ua.random})
+            yield response.follow(next_page, callback=self.parse_place_page, headers={"User-Agent": self.ua.random})

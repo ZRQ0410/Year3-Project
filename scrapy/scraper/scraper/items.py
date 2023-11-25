@@ -15,3 +15,4 @@ class ScraperItem(scrapy.Item):
 class GPItem(scrapy.Item):
     gp = scrapy.Field()
     locname = scrapy.Field()
+    postcode = scrapy.Field()
