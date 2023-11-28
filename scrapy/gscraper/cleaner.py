@@ -6,11 +6,11 @@ class Cleaner:
         pass
 
     @staticmethod
-    def clean_na(df):
+    def clean_na(df: pd.DataFrame):
         return df.dropna()
 
     @staticmethod
-    def correct_url(df):
+    def correct_url(df: pd.DataFrame):
         new = df.copy()
         new['nhs_url'] = df['nhs_url'].apply(
             lambda url: Cleaner.__remove_review(url))

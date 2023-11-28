@@ -5,95 +5,71 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 # from selenium.common.exceptions import TimeoutException
 # from selenium.common.exceptions import NoSuchElementException
+from urllib.parse import quote_plus
 import time
 import random
 import pandas as pd
-import sys
-import os
 
 
-def init_df():
-    # current directory may change
-    data = pd.read_csv('scraper/nhsdata.csv')
-    gp_df = pd.DataFrame(columns=['gp', 'nhs_url'])
-    gp_df['gp'] = data['gp'].unique()
-    return gp_df
+class Gscraper:
+    def __init__(self, nhs_data: pd.DataFrame):
+        # input data frame: use gp, postcode columns
+        self.nhs_data = nhs_data
+        # output data frame: collect overview page url and store into 'nhs_url'
+        self.links_df = pd.DataFrame(columns=['gp', 'postcode', 'nhs_url'])
+        self.links_df[['gp', 'postcode']] = self.nhs_data[['gp', 'postcode']]
+        self._setup_driver()
 
+    def _setup_driver(self):
+        # avoid detection
+        options = webdriver.ChromeOptions()
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--lang=en-GB")
+        # silent mode
+        # options.add_argument('--headless')
+        # update chrome automatically
+        version = ChromeDriverManager().install()
+        self.driver = webdriver.Chrome(version, options=options)
 
-def setup_driver():
-    # avoid detection
-    options = webdriver.ChromeOptions()
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--lang=en-GB")
-    # silent mode
-    # options.add_argument('--headless')
+    def close_driver(self):
+        self.driver.close()
 
-    # update chrome automatically
-    version = ChromeDriverManager().install()
+    def _scrape_link(self, row):
+        gp = row['gp']
+        postcode = row['postcode']
 
-    driver = webdriver.Chrome(version, options=options)
-    return driver
+        # remove '-' in the string
+        if '-' in gp:
+            gp = gp.replace('-', '')
 
+        # encode keywords into url, replace spaces with "+"
+        keyword = f"{gp} {postcode} nhs gp overview"
+        self.driver.get("https://www.google.com/search?q=" +
+                        quote_plus(keyword))
+        time.sleep(random.uniform(1.8, 2.2))
 
-def close_driver():
-    driver.close()
+        # get the first 10 links that the chrome returned
+        results = self.driver.find_element(
+            By.ID, "search").find_elements(By.TAG_NAME, 'a')
+        for i in range(10):
+            link = results[i].get_attribute('href')
+            # only collect the link which contains 'services/gp-surgery', make sure to get nhs overview related page
+            if 'www.nhs.uk/services/gp-surgery' in link:
+                print(link)
+                return link
+        else:
+            return None
 
+        # except NoSuchElementException:
+        #     WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//*[@title='reCAPTCHA']")))
+        #     time.sleep(random.uniform(2, 2.5))
+        #     cap = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='recaptcha-checkbox-border']"))).click()
+        #     driver.switch_to.default_content()
+        #     time.sleep(random.uniform(1, 1.5))
 
-def scrape_nhs_link(gp):
-    # deal with '&' in the name
-    if '&' in gp:
-        gp = gp.replace('&', '+26%+')
+    def scrape_nhs_link(self):
+        self.links_df['nhs_url'] = self.links_df.apply(
+            lambda x: self._scrape_link(x), axis=1)
 
-    driver.get("https://www.google.com/search?q=" + gp + "+nhs+gp+overview")
-    time.sleep(random.uniform(1.7, 2))
-
-    # get the first 10 links that the chrome returned
-    results = driver.find_element(
-        By.ID, "search").find_elements(By.TAG_NAME, 'a')
-    for i in range(10):
-        link = results[i].get_attribute('href')
-        # only store the link which contains 'services/gp-surgery', make sure to get nhs overview related page
-        if 'www.nhs.uk/services/gp-surgery' in link:
-            # print(link)
-            return link
-    else:
-        return None
-
-    # except NoSuchElementException:
-    #     WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//*[@title='reCAPTCHA']")))
-    #     time.sleep(random.uniform(2, 2.5))
-    #     cap = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='recaptcha-checkbox-border']"))).click()
-    #     driver.switch_to.default_content()
-    #     time.sleep(random.uniform(1, 1.5))
-
-
-def write2csv(docname):
-    gp_df.to_csv(docname, index=False)
-
-
-if __name__ == "__main__":
-    # scrape nhs overview url
-    gp_df = init_df()
-    driver = setup_driver()
-    gp_df['nhs_url'] = gp_df['gp'].apply(lambda gp: scrape_nhs_link(gp))
-    close_driver()
-    write2csv("nhslinks.csv")
-
-    # clean data
-    sys.path.append(
-        "C:\\Users\\12927\\Desktop\\Year3 Project\\scrapy\\gscraper")
-    # print(sys.path)
-    from cleaner import Cleaner
-
-    cwd = os.getcwd()
-    if 'gscraper' in cwd:
-        path = os.path.join(cwd, "nhslinks.csv")
-    else:
-        path = os.path.join(cwd, "gscraper/nhslinks.csv")
-    df = pd.read_csv(path)
-
-    # drop na
-    df_not_null = Cleaner.clean_na(df)
-    # remove review url, convert it to url of the overview page
-    cleaned_df = Cleaner.correct_url(df_not_null)
-    cleaned_df.to_csv("gscraper/cleaned_nhslinks.csv", index=False)
+    def write2csv(self, docname):
+        self.links_df.to_csv(docname, index=False)
