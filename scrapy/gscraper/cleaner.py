@@ -7,10 +7,16 @@ class Cleaner:
 
     @staticmethod
     def clean_na(df: pd.DataFrame):
+        """
+        Drop rows which contain missing values.
+        """
         return df.dropna()
 
     @staticmethod
     def correct_url(df: pd.DataFrame):
+        """
+        Convert the review / register url to the correct overview page url.
+        """
         new = df.copy()
         new['nhs_url'] = df['nhs_url'].apply(
             lambda url: Cleaner.__remove_review(url))
@@ -22,12 +28,16 @@ class Cleaner:
         s1 = "/leave-a-review"
         s2 = "/ratings-and-reviews"
         s3 = "/how-to-register"
-        if s1 in url or s2 in url or s3 in url:
-            if s1 in url:
-                index = url.find(s1)
-            elif s2 in url:
-                index = url.find(s2)
-            elif s3 in url:
-                index = url.find(s3)
-            return url[:index]
-        return url
+        try:
+            if s1 in url or s2 in url or s3 in url:
+                if s1 in url:
+                    index = url.find(s1)
+                elif s2 in url:
+                    index = url.find(s2)
+                elif s3 in url:
+                    index = url.find(s3)
+                return url[:index]
+            return url
+        # if url is NaN
+        except TypeError:
+            return None

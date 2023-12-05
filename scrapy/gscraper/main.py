@@ -4,21 +4,20 @@ import pandas as pd
 
 
 def scrape():
-    nhs_data = pd.read_csv('../data/nhsdata.csv', usecols=['gp', 'postcode'])
-    scraper = Gscraper(nhs_data)
+    nhs_data = pd.read_csv('../data/gp_table.csv', usecols=['gp', 'postcode'])
+    # save to nhslinks.csv while scraping
+    scraper = Gscraper(nhs_data, '../data/nhslinks.csv')
     scraper.scrape_nhs_link()
     scraper.close_driver()
-    # write to csv file
-    scraper.write2csv('../data/nhslinks.csv')
+    # write to csv file AFTER finishing scraping
+    # scraper.write2csv('test.csv')
     return scraper.links_df
 
 
 def clean(links_df):
     cleaner = Cleaner()
-    # drop None value
-    links_notnull = cleaner.clean_na(links_df)
     # convert url to the correct form
-    cleaned_links = cleaner.correct_url(links_notnull)
+    cleaned_links = cleaner.correct_url(links_df)
     cleaned_links.to_csv("../data/nhslinks_cleaned.csv", index=False)
 
 
@@ -27,4 +26,5 @@ if __name__ == '__main__':
     links_df = scrape()
 
     # clean and store the data
+    links_df = pd.read_csv('../data/nhslinks.csv')
     clean(links_df)
