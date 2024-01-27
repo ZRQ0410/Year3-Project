@@ -34,7 +34,7 @@ class Gscraper:
         version = ChromeDriverManager().install()
         self.driver = webdriver.Chrome(version, options=options)
 
-    def close_driver(self):
+    def _close_driver(self):
         self.driver.close()
 
     def _scrape_link(self, row):
@@ -55,9 +55,25 @@ class Gscraper:
                         quote_plus(keyword))
         time.sleep(random.uniform(1.7, 2.2))
 
-        # get the links on the first page that the chrome returned
-        results = self.driver.find_element(
-            By.ID, "search").find_elements(By.TAG_NAME, 'a')
+        # try to get the links on the first page that the chrome returned
+        # if does not return any result, restart the driver
+        for _ in range(3):
+            try:
+                results = self.driver.find_element(
+                    By.ID, "search").find_elements(By.TAG_NAME, 'a')
+                break
+            except AttributeError as e:
+                print(e)
+                print("Restart the driver...")
+                # start a new driver and try again
+                self._close_driver()
+                self._setup_driver()
+                self.driver.get(
+                    "https://www.google.com/search?q=" + quote_plus(keyword))
+                time.sleep(random.uniform(1.7, 2.2))
+        else:
+            print("Cannot find results...")
+            raise AttributeError
 
         for i in range(len(results)):
             link = results[i].get_attribute('href')
@@ -78,10 +94,12 @@ class Gscraper:
         try:
             self.links_df['nhs_url'] = self.links_df.apply(
                 lambda x: self._scrape_link(x), axis=1)
+            self._close_driver()
 
         except Exception as e:
             print('Error', e)
             self.file.close()
+            self._close_driver()
 
     def write2csv(self, docname):
         """

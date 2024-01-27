@@ -8,7 +8,6 @@ def scrape():
     # save to nhslinks.csv while scraping
     scraper = Gscraper(nhs_data, '../data/nhslinks.csv')
     scraper.scrape_nhs_link()
-    scraper.close_driver()
     # write to csv file AFTER finishing scraping
     # scraper.write2csv('test.csv')
     return scraper.links_df
