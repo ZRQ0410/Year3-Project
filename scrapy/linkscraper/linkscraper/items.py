@@ -14,5 +14,11 @@ class LinkscraperItem(scrapy.Item):
 
 class GPItem(scrapy.Item):
     gp = scrapy.Field()
+    postcode = scrapy.Field()
+    # overview page url
     nhs_url = scrapy.Field()
+    # main website url
     url = scrapy.Field()
+    # status of website url:
+    # 0: url not provided; -1: failed; 1: working
+    state = scrapy.Field()

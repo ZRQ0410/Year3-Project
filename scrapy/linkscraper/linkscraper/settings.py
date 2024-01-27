@@ -13,7 +13,7 @@ SPIDER_MODULES = ["linkscraper.spiders"]
 NEWSPIDER_MODULE = "linkscraper.spiders"
 
 FEEDS = {
-    'gp_website.csv': {'format': 'csv', 'overwrite': True}
+    'url_table.csv': {'format': 'csv', 'overwrite': True}
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -67,7 +67,9 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # "linkscraper.pipelines.LinkscraperPipeline": 300,
-    "linkscraper.pipelines.ValidateURLPipeline": 300
+    # "linkscraper.pipelines.DropWrongPagePipeline": 300,
+    "linkscraper.pipelines.ValidateURLPipeline": 400,
+    "linkscraper.pipelines.SaveToMySQLPipeline": 500
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
