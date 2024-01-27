@@ -13,7 +13,7 @@ SPIDER_MODULES = ["scraper.spiders"]
 NEWSPIDER_MODULE = "scraper.spiders"
 
 FEEDS = {
-    '../data/nhsdata.csv': {'format': 'csv', 'overwrite': True}
+    '../data/gp_table.csv': {'format': 'csv', 'overwrite': True}
 }
 
 
