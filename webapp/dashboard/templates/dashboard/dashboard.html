@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <div>num of urls: {{ num_of_urls }}</div>
+    <ul>
+        {% for u in urls %}
+        <li>
+            {{ u.url }} 
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
