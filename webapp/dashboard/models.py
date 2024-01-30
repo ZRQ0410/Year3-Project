@@ -9,7 +9,19 @@ from django.db import models
 
 class Report(models.Model):
     url = models.TextField(blank=True, null=True)
-    report = models.TextField(blank=True, null=True)
+    # report = models.TextField(blank=True, null=True)
+    num_err = models.IntegerField(blank=True, null=True)
+    num_likely = models.IntegerField(blank=True, null=True)
+    num_potential = models.IntegerField(blank=True, null=True)
+    err = models.JSONField(blank=True, null=True)
+    likely = models.JSONField(blank=True, null=True)
+    potential = models.JSONField(blank=True, null=True)
+    num_A = models.IntegerField(blank=True, null=True)
+    num_AA = models.IntegerField(blank=True, null=True)
+    num_AAA = models.IntegerField(blank=True, null=True)
+    err_A = models.JSONField(blank=True, null=True)
+    err_AA = models.JSONField(blank=True, null=True)
+    err_AAA = models.JSONField(blank=True, null=True)
 
 
 class UrlTable(models.Model):
