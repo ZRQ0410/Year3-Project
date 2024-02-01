@@ -7,6 +7,7 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
+
 class Report(models.Model):
     url = models.TextField(blank=True, null=True)
     # report = models.TextField(blank=True, null=True)
