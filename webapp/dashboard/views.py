@@ -22,31 +22,46 @@ def home(request):
     # return render(request, 'dashboard/dashboard.html')
 
 
-# one time function to map UrlTable to Report table (add foreign key)
-# def url2report(request):
-#     # get all unique working urls
-#     urls = UrlTable.objects.filter(state=1).values('url').distinct()
-#     url_lst = [u['url'] for u in urls]
+def _analyze():
+    # how to map postcode to name?
 
-#     # put all urls in Report table
-#     for u in url_lst:
-#         r = Report(url=u)
-#         r.save()
+    # query and anylize data
+    # pass to front end
+    # data which needs to be calculated: mean ...
+    # store all the results into csv file (maybe under 'data/' dir)
+    # each time open the page: check if the csv file exists
+    # if so, read from this file and pass the data to front end
+    pass
 
-#     # get all objects in url table
-#     objs = UrlTable.objects.all()
-#     # match the url in UrlTable with url in Report
-#     for i in objs:
-#         if i.url in url_lst:
-#             r = Report.objects.get(url=i.url)
-#             i.report = r
-#             i.save()
-    
-#     return HttpResponse('Done')
-    
+
+# one-time function to add districts to Url table
+def get_districts(postcode):
+    """
+    Get the local authority district name according to the postcode.
+    If cannot get the district name, set to None.
+    """
+    objs = UrlTable.objects.all()
+
+    for obj in objs:
+        # postcodes.io api: https://postcodes.io/
+        api = "https://api.postcodes.io/postcodes/" + obj.postcode
+        # get response, if failed, try again
+        for i in range(2):
+            res = requests.get(api).json()
+            if res['status'] == 200:
+                obj.lad = res['result']['admin_district']
+                break
+            else:
+                obj.lad = None
+                time.sleep(0.5)
+        obj.save()
+    return HttpResponse('Done')
+
 
 def test(request):
-    return HttpResponse('Test page')
+    template = loader.get_template('dashboard/test.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
 
 
 def achecker_evaluation(request):
@@ -179,3 +194,26 @@ def achecker_evaluation(request):
 
 #     violations = result['violations']
 #     return HttpResponse("{} violations found.".format(len(violations)))
+
+
+# one time function to map UrlTable to Report table (add foreign key)
+# def url2report(request):
+#     # get all unique working urls
+#     urls = UrlTable.objects.filter(state=1).values('url').distinct()
+#     url_lst = [u['url'] for u in urls]
+
+#     # put all urls in Report table
+#     for u in url_lst:
+#         r = Report(url=u)
+#         r.save()
+
+#     # get all objects in url table
+#     objs = UrlTable.objects.all()
+#     # match the url in UrlTable with url in Report
+#     for i in objs:
+#         if i.url in url_lst:
+#             r = Report.objects.get(url=i.url)
+#             i.report = r
+#             i.save()
+    
+#     return HttpResponse('Done')

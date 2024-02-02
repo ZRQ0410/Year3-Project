@@ -33,6 +33,7 @@ class UrlTable(models.Model):
     state = models.IntegerField(blank=True, null=True)
     # one report may map to several gps
     report = models.ForeignKey(Report, on_delete=models.PROTECT, null=True)
+    lad = models.TextField(blank=True, null=True)
 
     class Meta:
         # managed = False
