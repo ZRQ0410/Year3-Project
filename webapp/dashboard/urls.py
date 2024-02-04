@@ -4,9 +4,9 @@ from . import views
 
 urlpatterns = [
     path('', views.home),
-    path('test/', views.test),
+    path('districts/', views.districts),
     path('achecker_evaluation/', views.achecker_evaluation),
-    path('get_districts/', views.get_districts),
     # path('axe/', views.axe),
     # path('url2report/', views.url2report),
+    # path('get_districts/', views.get_districts),
 ]

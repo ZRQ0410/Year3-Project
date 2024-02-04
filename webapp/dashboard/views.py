@@ -1,66 +1,170 @@
-# from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
+from django.db.models import Sum
 from .models import UrlTable
 from .models import Report
 import requests
 from bs4 import BeautifulSoup
 import time
+import json
 import requests
+import itertools
+from collections import Counter
 
 def home(request):
-    # urls = UrlTable.objects.exclude(url__isnull=True)
-    urls = UrlTable.objects.filter(state=1).values('url').distinct()
+    # each time open the page: check if json files exist
+    # if so, read from theses files and pass the data to front end
+    try:
+        with open('dashboard/data/result_district.json') as f1:
+            result_district = json.load(f1)
+        with open('dashboard/data/result_overall.json') as f2:
+            result_overall = json.load(f2)
+    except:
+        _analyze_report()
 
     template = loader.get_template('dashboard/dashboard.html')
     context = {
-        'num_of_urls': len(urls),
-        'urls': urls[:100],
+        'result_district': result_district,
+        'result_overall': result_overall,
     }
 
     return HttpResponse(template.render(context, request))
     # return render(request, 'dashboard/dashboard.html')
 
 
-def _analyze():
-    # how to map postcode to name?
+def _analyze_district(districts):
+    """
+    Analyze reports for each district:
+        num_evaluated: number of GPs evaluated (same GP names with different postcodes considered as different ones)
+        mean_err: average number of errors
+        mean_likely: average number of likely problems
+        mean_potential: average number of potential problems
+        A_percent: percentage of GPs satisfy A level conformance
+        AA_percent: percentage of GPs satisfy AA level conformance
+        AAA_percent: percentage of GPs satisfy AAA level conformance
+    Return:
+        {'districtA': {...},
+         'districtB': {...},
+          ...}
+    """
+    result = {}
+    for d in districts:
+        data = {}
+        # for each district: with working url (report_id not null), valid report (num_err not null)
+        num_eval = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_err__isnull=False).count()
+        data['num_evaluated'] = num_eval
+
+        # for all valid reports
+        num_err = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_err'))['report__num_err__sum']
+        num_likely = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_likely'))['report__num_likely__sum']
+        num_potential = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_potential'))['report__num_potential__sum']
+        
+        data['mean_err'] = num_err / num_eval
+        data['mean_likely'] = num_likely / num_eval
+        data['mean_potential'] = num_potential / num_eval
+
+        # if a GP satisfies AAA, then it also satisfies A and AA
+        num_Alevel = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_A=0).count()
+        num_AAlevel = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_A=0, report__num_AA=0).count()
+        num_AAAlevel = UrlTable.objects.filter(lad=d, report_id__isnull=False, report__num_err=0).count()
+
+        data['A_percent'] = num_Alevel / num_eval
+        data['AA_percent'] = num_AAlevel / num_eval
+        data['AAA_percent'] = num_AAAlevel / num_eval
+
+        result[d] = data
+    return result
+
+
+def _get_top5(lst):
+    """
+    Given a list of lists, get counts of all values, sort the elements from higher counts to lower counts.
+    """
+    counts = Counter(itertools.chain.from_iterable(lst)).most_common()
+    if len(counts) <= 5:
+        return counts
+    else:
+        return counts[:5]
+
+
+def _analyze_overall():
+    """
+    Analyze the overall level:
+        top_err: most frequent errors
+        top_likely: most frequent likely problems
+        top_potential: most frequent potential problems
+        top_A_err: most frequent A level errors
+        top_AA_err: most frequent AA level errors
+        top_AAA_err: most frequent AAA level errors
+        Find top 5 of each class, if less than 5, return all.
+    Return:
+        List should be sorted: descending order.
+        {'top_err': [(id1, num), (id2, num) ...],
+        'top_likely': [...],
+        ...}
+    """
+    result = {}
+    err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
+    err = [e['report__err'] for e in err_query]
+    result['top_err'] = _get_top5(err)
+
+    likely_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__likely')
+    likely = [l['report__likely'] for l in likely_query]
+    result['top_likely'] = _get_top5(likely)
+
+    potential_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__potential')
+    potential = [p['report__potential'] for p in potential_query]
+    result['top_potential'] = _get_top5(potential)
+
+    err_A_query = UrlTable.objects.filter(report_id__isnull=False, report__err_A__isnull=False).values('report__err_A')
+    err_A = [e['report__err_A'] for e in err_A_query]
+    result['top_A_err'] = _get_top5(err_A)
+
+    err_AA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AA__isnull=False).values('report__err_AA')
+    err_AA = [e['report__err_AA'] for e in err_AA_query]
+    result['top_AA_err'] = _get_top5(err_AA)
+
+    err_AAA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AAA__isnull=False).values('report__err_AAA')
+    err_AAA = [e['report__err_AAA'] for e in err_AAA_query]
+    result['top_AAA_err'] = _get_top5(err_AAA)
+
+    return result
+
+
+def _analyze_report():
+    """
+    Analyze the report in district and overall level.
+    Save the reuslts into json files. (under data/)
+    """
+    # get list of unique lad
+    lads = UrlTable.objects.exclude(lad__isnull=True).values('lad').distinct()
+    districts = [i['lad'] for i in lads]
 
     # query and anylize data
-    # pass to front end
-    # data which needs to be calculated: mean ...
-    # store all the results into csv file (maybe under 'data/' dir)
-    # each time open the page: check if the csv file exists
-    # if so, read from this file and pass the data to front end
-    pass
+    # 1. each district
+    result_district = _analyze_district(districts)
+    # 2. whole level
+    result_overall = _analyze_overall()
+
+    # write the results into 2 json files
+    with open('dashboard/data/result_district.json', 'w') as f1:
+        json.dump(result_district, f1)
+    
+    with open('dashboard/data/result_overall.json', 'w') as f2:
+        json.dump(result_overall, f2)
 
 
-# one-time function to add districts to Url table
-def get_districts(postcode):
-    """
-    Get the local authority district name according to the postcode.
-    If cannot get the district name, set to None.
-    """
-    objs = UrlTable.objects.all()
-
-    for obj in objs:
-        # postcodes.io api: https://postcodes.io/
-        api = "https://api.postcodes.io/postcodes/" + obj.postcode
-        # get response, if failed, try again
-        for i in range(2):
-            res = requests.get(api).json()
-            if res['status'] == 200:
-                obj.lad = res['result']['admin_district']
-                break
-            else:
-                obj.lad = None
-                time.sleep(0.5)
-        obj.save()
-    return HttpResponse('Done')
-
-
-def test(request):
-    template = loader.get_template('dashboard/test.html')
-    context = {}
+def districts(request):
+    with open('dashboard/data/result_district.json') as f1:
+            result_district = json.load(f1)
+    with open('dashboard/data/result_overall.json') as f2:
+        result_overall = json.load(f2)
+    
+    template = loader.get_template('dashboard/districts.html')
+    context = {
+        'result_district': result_district,
+        'result_overall': result_overall,
+    }
     return HttpResponse(template.render(context, request))
 
 
@@ -177,7 +281,6 @@ def achecker_evaluation(request):
     return HttpResponse('Done')
 
 
-
 # UnicodeDecodeError: 'gbk' codec can't decode byte 0xa6 in position 37359: illegal multibyte sequence
 # def axe(request):
 #     from playwright.sync_api import sync_playwright
@@ -194,6 +297,8 @@ def achecker_evaluation(request):
 
 #     violations = result['violations']
 #     return HttpResponse("{} violations found.".format(len(violations)))
+
+
 
 
 # one time function to map UrlTable to Report table (add foreign key)
@@ -216,4 +321,27 @@ def achecker_evaluation(request):
 #             i.report = r
 #             i.save()
     
+#     return HttpResponse('Done')
+
+# one-time function to add districts to Url table
+# def get_districts(postcode):
+#     """
+#     Get the local authority district name according to the postcode.
+#     If cannot get the district name, set to None.
+#     """
+#     objs = UrlTable.objects.all()
+
+#     for obj in objs:
+#         # postcodes.io api: https://postcodes.io/
+#         api = "https://api.postcodes.io/postcodes/" + obj.postcode
+#         # get response, if failed, try again
+#         for i in range(2):
+#             res = requests.get(api).json()
+#             if res['status'] == 200:
+#                 obj.lad = res['result']['admin_district']
+#                 break
+#             else:
+#                 obj.lad = None
+#                 time.sleep(0.5)
+#         obj.save()
 #     return HttpResponse('Done')
