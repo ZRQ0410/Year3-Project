@@ -1,0 +1,103 @@
+/* main {
+    margin-right: 50px;
+} */
+.data-label {
+    font-size: 14px;
+    font-weight: bold;
+}
+.data-text {
+    text-align: center;
+    font-size: xx-large;
+    color: rgb(102, 131, 179);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+.bar-chart {
+    margin-top: 30px;
+    float: left;
+    width: 50%;
+}
+#chart-error {
+    display: block;
+}
+#chart-likely {
+    display: none;
+}
+#chart-potential {
+    display: none;
+}
+.pie-chart {
+    margin-top: 30px;
+    margin-left: 2%;
+    float: left;
+    width: 48%;
+}
+
+
+.map-average {
+    float: left;
+    width: 600px;
+    height: 615px;
+}
+#map-error {
+    display: block;
+    flex: none;
+    width: 560px;
+    height: 520px;
+}
+#map-likely {
+    display: none;
+    flex: none;
+    width: 560px;
+    height: 520px;
+}
+#map-potential {
+    display: none;
+    flex: none;
+    width: 560px;
+    height: 520px;
+}
+#mean-err, #mean-likely, #mean-potential{
+    width: 560px;
+    height: 520px;
+}
+
+
+.map-percentage {
+    float: right;
+    width: 600px;
+    height: 615px;
+}
+#map-A {
+    display: block;
+    flex: none;
+    width: 560px;
+    height: 520px;
+}
+#map-AA {
+    display: none;
+    flex: none;
+    width: 560px;
+    height: 520px;
+}
+#map-AAA {
+    display: none;
+    flex: none;
+    width: 560px;
+    height: 520px;
+}
+#A-percent, #AA-percent, #AAA-percent {
+    width: 560px;
+    height: 520px;
+}
+
+.btn-group {
+    width: 410px;
+}
+input, label {
+    width: 50px;
+}
+.btn {
+    border: none;
+    border-radius: 5px 5px;
+}
+

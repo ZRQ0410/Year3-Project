@@ -1,17 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
+    {{ result_overall|json_script:"result_overall" }}
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js" integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Accessibility Evaluation</title>
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <div>num of urls: {{ num_of_urls }}</div>
-    <ul>
-        {% for u in urls %}
-        <li>
-            {{ u.url }} 
-        </li>
-        {% endfor %}
-    </ul>
+    <!-- side bar -->
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-light" style="width: 220px;height: 100vh;float: left;">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-black text-decoration-none" style="margin-left: 1rem">
+          <!-- <svg class="bi pe-none me-2" width="30" height="32"><use xlink:href="#bootstrap"/></svg> -->
+          <span class="fs-4" style="font-family: Verdana;">Analysis</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="/" class="nav-link" aria-current="page" style="color: rgb(117, 146, 191);font-weight: 600;background-color: rgb(223, 232, 241);">
+              Overall
+            </a>
+          </li>
+          <li>
+            <a href="/districts" class="nav-link" style="color: #64748B;">
+              Districts
+            </a>
+          </li>
+        </ul>
+        <hr>
+      </div>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);">Overall Analysis</h3>
+        </div>
+    
+        <!-- cards -->
+        <div class="cards row row-cols-1 row-cols-md-4 g-5">
+            <div class="col">
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title data-label">Total Evaluated Websites</h5>
+                <p class="card-text data-text">123</p>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title data-label">Total Evaluated Districts</h5>
+                <p class="card-text data-text">456</p>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title data-label">Evaluation Tool</h5>
+                <p class="card-text data-text">AChecker</p>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                    <h5 class="card-title data-label">Guidelines</h5>
+                    <p class="card-text data-text">WCAG2.0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- bar chart group -->
+        <div class="bar-chart card text-center">
+            <div class="card-header">
+              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked onclick="changedata(0)">
+                <label class="btn btn1" for="btnradio1" style="background-color: rgb(138, 169, 219);color: white;">Top Error</label>
+              
+                <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" onclick="changedata(1)">
+                <label class="btn btn2" for="btnradio2">Top Likely</label>
+              
+                <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" onclick="changedata(2)">
+                <label class="btn btn3" for="btnradio3">Top Potential</label>
+              </div>
+            </div>
+
+            <script>
+                function changedata(parameter){
+                    if(parameter==0){
+                        document.getElementById('chart-error').style.display = 'block';
+                        document.getElementById('chart-likely').style.display = 'none';
+                        document.getElementById('chart-potential').style.display = 'none';
+                        document.getElementsByClassName('btn1')[0].style.backgroundColor='rgb(138, 169, 219)';
+                        document.getElementsByClassName('btn2')[0].style.backgroundColor='transparent';
+                        document.getElementsByClassName('btn3')[0].style.backgroundColor='transparent';
+                        document.getElementsByClassName('btn1')[0].style.color='white';
+                        document.getElementsByClassName('btn2')[0].style.color='black';
+                        document.getElementsByClassName('btn3')[0].style.color='black';
+
+                    }
+                    else if(parameter==1){
+                        document.getElementById('chart-error').style.display = 'none';
+                        document.getElementById('chart-likely').style.display = 'block';
+                        document.getElementById('chart-potential').style.display = 'none';
+                        document.getElementsByClassName('btn1')[0].style.backgroundColor='transparent';
+                        document.getElementsByClassName('btn2')[0].style.backgroundColor='rgb(138, 169, 219)';
+                        document.getElementsByClassName('btn3')[0].style.backgroundColor='transparent';
+                        document.getElementsByClassName('btn1')[0].style.color='black';
+                        document.getElementsByClassName('btn2')[0].style.color='white';
+                        document.getElementsByClassName('btn3')[0].style.color='black';
+                    }
+                    else{
+                        document.getElementById('chart-error').style.display = 'none';
+                        document.getElementById('chart-likely').style.display = 'none';
+                        document.getElementById('chart-potential').style.display = 'block';
+                        document.getElementsByClassName('btn1')[0].style.backgroundColor='transparent';
+                        document.getElementsByClassName('btn2')[0].style.backgroundColor='transparent';
+                        document.getElementsByClassName('btn3')[0].style.backgroundColor='rgb(138, 169, 219)';
+                        document.getElementsByClassName('btn1')[0].style.color='black';
+                        document.getElementsByClassName('btn2')[0].style.color='black';
+                        document.getElementsByClassName('btn3')[0].style.color='white';
+                    }
+                }
+            </script>
+
+            <div class="card-body" id="chart-error">
+              <h5 class="card-title">chart 1</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">subtitle</h6>
+              <p class="card-text">111111</p>
+            </div>
+            <div class="card-body" id="chart-likely">
+                <h5 class="card-title">chart 2</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">subtitle</h6>
+                <p class="card-text">222222222</p>
+            </div>
+            <div class="card-body" id="chart-potential">
+                <h5 class="card-title">chart 3</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">subtitle</h6>
+                <p class="card-text">33333333</p>
+            </div>
+        </div>
+
+        <!-- pie chart -->
+        <div class="card pie-chart">
+            <div class="card-body">
+              <h5 class="card-title">pie chart</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">subtitle</h6>
+              <p class="card-text">tttttttttttttttttttttt</p>
+            </div>
+        </div>
+
+    </main>
+
+
 </body>
 </html>
