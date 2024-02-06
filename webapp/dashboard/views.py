@@ -31,6 +31,17 @@ def home(request):
     return HttpResponse(template.render(context, request))
     # return render(request, 'dashboard/dashboard.html')
 
+def test(request):
+    with open('dashboard/data/result_overall.json') as f2:
+            result_overall = json.load(f2)
+    
+    template = loader.get_template('dashboard/test.html')
+    context = {
+        'result_overall': result_overall
+    }
+
+    return HttpResponse(template.render(context, request))
+
 
 def _analyze_district(districts):
     """
@@ -87,23 +98,63 @@ def _get_top5(lst):
         return counts[:5]
 
 
+def _classify_errs():
+    """
+    Assign each error to its corresponding class: Perceivable, Operable, Understandable, Robust. Compute the number of errors in each class.
+    """
+    err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
+    err_lst = [e['report__err'] for e in err_query]
+    # flatten the list of lists
+    err = list(itertools.chain.from_iterable(err_lst))
+    with open('dashboard/data/classes.json') as f:
+        classes = json.load(f)
+        perceive = set(classes['1'])
+        operable = set(classes['2'])
+        understand = set(classes['3'])
+        robust = set(classes['4'])
+
+    err_p, err_o, err_u, err_r = [], [], [], []
+    for i in err:
+        if i in perceive:
+            err_p.append(i)
+        elif i in operable:
+            err_o.append(i)
+        elif i in understand:
+            err_u.append(i)
+        elif i in robust:
+            err_r.append(i)
+    return (len(err_p), len(err_o), len(err_u), len(err_r))
+
+
 def _analyze_overall():
     """
     Analyze the overall level:
-        top_err: most frequent errors
-        top_likely: most frequent likely problems
-        top_potential: most frequent potential problems
-        top_A_err: most frequent A level errors
-        top_AA_err: most frequent AA level errors
-        top_AAA_err: most frequent AAA level errors
-        Find top 5 of each class, if less than 5, return all.
+        num_websites: total number of eval GPs' websites (assume each unique gp has a unique website)
+        num_districts: total number of eval districts
+        Find top 5 of each class, if less than 5, return all:
+            top_err: most frequent errors
+            top_likely: most frequent likely problems
+            top_potential: most frequent potential problems
+            top_A_err: most frequent A level errors
+            top_AA_err: most frequent AA level errors
+            top_AAA_err: most frequent AAA level errors
+        num_p: number of errors in Perceivable class
+        num_o: number of errors in Operable class
+        num_u: number of errors in Understandable class
+        num_r: number of errors in Robust class
     Return:
         List should be sorted: descending order.
-        {'top_err': [(id1, num), (id2, num) ...],
-        'top_likely': [...],
-        ...}
+        {'num_websites': num,
+         'num_districts': num,
+         'top_err': [(id1, num), (id2, num) ...],
+         'top_likely': [...],
+         ...}
     """
     result = {}
+
+    result['num_websites'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).count()
+    result['num_districts'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct().count()
+
     err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
     err = [e['report__err'] for e in err_query]
     result['top_err'] = _get_top5(err)
@@ -127,6 +178,8 @@ def _analyze_overall():
     err_AAA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AAA__isnull=False).values('report__err_AAA')
     err_AAA = [e['report__err_AAA'] for e in err_AAA_query]
     result['top_AAA_err'] = _get_top5(err_AAA)
+
+    result['num_p'], result['num_o'], result['num_u'], result['num_r'] = _classify_errs()
 
     return result
 
@@ -180,13 +233,12 @@ def achecker_evaluation(request):
     """
     reports = Report.objects.all()
 
-    # read 3 levels (A / AA / AAA) of issue IDs from issue_id.txt file (set of strings)
-    with open('issue_ids.txt', 'r') as f:
-        # print(set(map(int, f.readlines()[0].split(','))))
-        levels = f.read().split('\n')
-        A = set(levels[0].split(','))
-        AA = set(levels[1].split(','))
-        AAA = set(levels[2].split(','))
+    # read 3 levels (A / AA / AAA) of issue IDs from issue_ids.json file (set of strings)
+    with open('dashboard/data/issue_ids.json', 'r') as f:
+        data = json.load(f)
+        A = set(data['A'])
+        AA = set(data['AA'])
+        AAA = set(data['AAA'])
     
     # evaluate each url and store the report
     for report in reports:
