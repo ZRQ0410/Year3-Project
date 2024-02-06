@@ -6,7 +6,7 @@ Divide all issue IDs into three sets:
 Each issue ID is only mapped to one set.
 """
 
-import requests
+import requests, json
 from bs4 import BeautifulSoup
 
 total_ids = []
@@ -37,11 +37,12 @@ id_AAA = total_ids[2] - total_ids[1]
 # line 1: level A id
 # line 2: level AA id
 # line 3: level AAA id
-with open('check_ids.txt', 'w') as f:
-    f.write(','.join(id_A) + '\n')
-    f.write(','.join(id_AA) + '\n')
-    f.write(','.join(id_AAA) + '\n')
+# with open('check_ids.txt', 'w') as f:
+#     f.write(','.join(id_A) + '\n')
+#     f.write(','.join(id_AA) + '\n')
+#     f.write(','.join(id_AAA) + '\n')
+data = {'A': list(id_A), 'AA': list(id_AA), 'AAA': list(id_AAA)}
 
-# read the three sets from files
-# with open('issue_ids.txt', 'r') as f:
-#     print(set(map(int, f.readlines()[0].split(','))))
+# write to json file
+with open('dashboard/data/issue_ids.json', 'w') as f:
+        json.dump(data, f)
