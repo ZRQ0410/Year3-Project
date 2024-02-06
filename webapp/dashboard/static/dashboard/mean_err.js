@@ -20,8 +20,6 @@ $.get('../static/dashboard/local_admin.json', function (geoJson) {
   option = {
     title: {
       text: 'Average Number of Accessibility Problems',
-      // subtext: 'Data from xxx',
-      // sublink: 'xxx',
       left: 'center'
     },
     tooltip: {

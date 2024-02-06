@@ -13,7 +13,6 @@
     <!-- side bar -->
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-light" style="width: 220px;height: 100vh;float: left;">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-black text-decoration-none" style="margin-left: 1rem">
-          <!-- <svg class="bi pe-none me-2" width="30" height="32"><use xlink:href="#bootstrap"/></svg> -->
           <span class="fs-4" style="font-family: Verdana;">Analysis</span>
         </a>
         <hr>
@@ -42,8 +41,8 @@
             <div class="col">
             <div class="card">
                 <div class="card-body">
-                <h5 class="card-title data-label">Total Evaluated Websites</h5>
-                <p class="card-text data-text">123</p>
+                <h5 class="card-title data-label">Total Evaluated GPs' Websites</h5>
+                <p class="card-text data-text">{{ result_overall.num_websites }}</p>
                 </div>
             </div>
             </div>
@@ -51,7 +50,7 @@
             <div class="card">
                 <div class="card-body">
                 <h5 class="card-title data-label">Total Evaluated Districts</h5>
-                <p class="card-text data-text">456</p>
+                <p class="card-text data-text">{{ result_overall.num_districts }}</p>
                 </div>
             </div>
             </div>
@@ -146,10 +145,9 @@
 
         <!-- pie chart -->
         <div class="card pie-chart">
-            <div class="card-body">
-              <h5 class="card-title">pie chart</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">subtitle</h6>
-              <p class="card-text">tttttttttttttttttttttt</p>
+            <div class="card-body" id="pie-categories">
+              <div id="categories"></div>
+              <script type="module" src="{% static 'dashboard/categories.js' %}"></script>
             </div>
         </div>
 
