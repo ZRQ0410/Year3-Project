@@ -72,8 +72,15 @@
             </div>
         </div>
 
+        <div class="card bar-chart">
+          <div class="card-body" id="bar-top-err">
+            <div id="top-err"></div>
+            <script type="module" src="{% static 'dashboard/top_err.js' %}"></script>
+          </div>
+        </div>
+
         <!-- bar chart group -->
-        <div class="bar-chart card text-center">
+        <!-- <div class="bar-chart card text-center">
             <div class="card-header">
               <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                 <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked onclick="changedata(0)">
@@ -141,7 +148,7 @@
                 <h6 class="card-subtitle mb-2 text-body-secondary">subtitle</h6>
                 <p class="card-text">33333333</p>
             </div>
-        </div>
+        </div> -->
 
         <!-- pie chart -->
         <div class="card pie-chart">

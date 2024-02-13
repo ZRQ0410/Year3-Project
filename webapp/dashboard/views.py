@@ -28,6 +28,8 @@ def home(request):
         'result_overall': result_overall,
     }
 
+    # template = loader.get_template('dashboard/tttt.html')
+
     return HttpResponse(template.render(context, request))
     # return render(request, 'dashboard/dashboard.html')
 
@@ -43,7 +45,7 @@ def test(request):
     return HttpResponse(template.render(context, request))
 
 
-def _analyze_district(districts):
+def _analyze_district():
     """
     Analyze reports for each district:
         num_evaluated: number of GPs evaluated (same GP names with different postcodes considered as different ones)
@@ -58,6 +60,10 @@ def _analyze_district(districts):
          'districtB': {...},
           ...}
     """
+    # get list of unique lad
+    lads = UrlTable.objects.exclude(lad__isnull=True).values('lad').distinct()
+    districts = [i['lad'] for i in lads]
+
     result = {}
     for d in districts:
         data = {}
@@ -126,15 +132,27 @@ def _classify_errs():
     return (len(err_p), len(err_o), len(err_u), len(err_r))
 
 
+def _get_detail(id):
+    """
+    Get the success criteria, error detail, and short description of the issue.
+    """
+    res = requests.get("https://websiteaccessibilitychecker.com/checker/suggestion.php?id=" + str(id))
+    soup = BeautifulSoup(res.text, 'html')
+    sc = soup.find(class_='output-form').find_all('li')[-1].find(class_='padding_left').text
+    err = soup.find(class_='output-form').find_all(class_='msg')[4].text
+    descr = soup.find(class_='output-form').find_all(class_='msg')[3].text
+    return (sc, err, descr)
+
+
 def _analyze_overall():
     """
     Analyze the overall level:
         num_websites: total number of eval GPs' websites (assume each unique gp has a unique website)
         num_districts: total number of eval districts
         Find top 5 of each class, if less than 5, return all:
-            top_err: most frequent errors
-            top_likely: most frequent likely problems
-            top_potential: most frequent potential problems
+            # top_err: most frequent errors
+            # top_likely: most frequent likely problems
+            # top_potential: most frequent potential problems
             top_A_err: most frequent A level errors
             top_AA_err: most frequent AA level errors
             top_AAA_err: most frequent AAA level errors
@@ -142,12 +160,18 @@ def _analyze_overall():
         num_o: number of errors in Operable class
         num_u: number of errors in Understandable class
         num_r: number of errors in Robust class
+        # num_err: total number of errors of all websites
+        # num_likely: total number of likely problems
+        # num_potential: total number of potential problems
+        num_A_err: total number of level A errors
+        num_AA_err: total number of level AA errors
+        num_AAA_err: total number of level AAA errors
     Return:
         List should be sorted: descending order.
         {'num_websites': num,
          'num_districts': num,
-         'top_err': [(id1, num), (id2, num) ...],
-         'top_likely': [...],
+         'top_A_err': [{'id': id1, 'num': num, 'sc': sc, 'msg': issue detail, 'descr': description}, {}, ...],
+         'top_AA_err': [...],
          ...}
     """
     result = {}
@@ -155,31 +179,69 @@ def _analyze_overall():
     result['num_websites'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).count()
     result['num_districts'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct().count()
 
-    err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
-    err = [e['report__err'] for e in err_query]
-    result['top_err'] = _get_top5(err)
+    # err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
+    # err = [e['report__err'] for e in err_query]
+    # top_err = []
+    # err_counts = _get_top5(err)
+    # for issue in err_counts:
+    #     sc, msg, descr = _get_detail(issue[0])
+    #     top_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
+    # result['top_err'] = top_err
 
-    likely_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__likely')
-    likely = [l['report__likely'] for l in likely_query]
-    result['top_likely'] = _get_top5(likely)
+    # likely_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__likely')
+    # likely = [l['report__likely'] for l in likely_query]
+    # top_likely = []
+    # likely_counts = _get_top5(likely)
+    # for issue in likely_counts:
+    #     sc, msg, descr = _get_detail(issue[0])
+    #     top_likely.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
+    # result['top_likely'] = top_likely
 
-    potential_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__potential')
-    potential = [p['report__potential'] for p in potential_query]
-    result['top_potential'] = _get_top5(potential)
+    # potential_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__potential')
+    # potential = [p['report__potential'] for p in potential_query]
+    # top_potential = []
+    # potential_counts = _get_top5(potential)
+    # for issue in potential_counts:
+    #     sc, msg, descr = _get_detail(issue[0])
+    #     top_potential.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
+    # result['top_potential'] = top_potential
 
     err_A_query = UrlTable.objects.filter(report_id__isnull=False, report__err_A__isnull=False).values('report__err_A')
     err_A = [e['report__err_A'] for e in err_A_query]
-    result['top_A_err'] = _get_top5(err_A)
+    top_A_err = []
+    err_A_counts = _get_top5(err_A)
+    for issue in err_A_counts:
+        sc, msg, descr = _get_detail(issue[0])
+        top_A_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
+    result['top_A_err'] = top_A_err
 
     err_AA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AA__isnull=False).values('report__err_AA')
     err_AA = [e['report__err_AA'] for e in err_AA_query]
-    result['top_AA_err'] = _get_top5(err_AA)
+    top_AA_err = []
+    err_AA_counts = _get_top5(err_AA)
+    for issue in err_AA_counts:
+        sc, msg, descr = _get_detail(issue[0])
+        top_AA_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
+    result['top_AA_err'] = top_AA_err
 
     err_AAA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AAA__isnull=False).values('report__err_AAA')
     err_AAA = [e['report__err_AAA'] for e in err_AAA_query]
-    result['top_AAA_err'] = _get_top5(err_AAA)
+    top_AAA_err = []
+    err_AAA_counts = _get_top5(err_AAA)
+    for issue in err_AAA_counts:
+        sc, msg, descr = _get_detail(issue[0])
+        top_AAA_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
+    result['top_AAA_err'] = top_AAA_err
 
     result['num_p'], result['num_o'], result['num_u'], result['num_r'] = _classify_errs()
+
+    # result['num_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_err'))['report__num_err__sum']
+    # result['num_likely'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_likely'))['report__num_likely__sum']
+    # result['num_potential'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_potential'))['report__num_potential__sum']
+
+    result['num_A_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_A__isnull=False).aggregate(Sum('report__num_A'))['report__num_A__sum']
+    result['num_AA_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_A__isnull=False).aggregate(Sum('report__num_AA'))['report__num_AA__sum']
+    result['num_AAA_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_A__isnull=False).aggregate(Sum('report__num_AAA'))['report__num_AAA__sum']
 
     return result
 
@@ -189,13 +251,9 @@ def _analyze_report():
     Analyze the report in district and overall level.
     Save the reuslts into json files. (under data/)
     """
-    # get list of unique lad
-    lads = UrlTable.objects.exclude(lad__isnull=True).values('lad').distinct()
-    districts = [i['lad'] for i in lads]
-
     # query and anylize data
     # 1. each district
-    result_district = _analyze_district(districts)
+    result_district = _analyze_district()
     # 2. whole level
     result_overall = _analyze_overall()
 
@@ -221,7 +279,8 @@ def districts(request):
     return HttpResponse(template.render(context, request))
 
 
-def achecker_evaluation(request):
+# evaluate all urls periodically
+def _achecker_evaluation():
     """
     Update all data in the Report table.
     Columns in Report table:
@@ -330,8 +389,6 @@ def achecker_evaluation(request):
         # save updated report object
         report.save()
     
-    return HttpResponse('Done')
-
 
 # UnicodeDecodeError: 'gbk' codec can't decode byte 0xa6 in position 37359: illegal multibyte sequence
 # def axe(request):
