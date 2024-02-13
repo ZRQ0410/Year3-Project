@@ -33,18 +33,18 @@ $.get('../static/dashboard/local_admin.json', function (geoJson) {
       max: 1,
       inRange: {
         color: [
-          '#476185',
-          '#6592cd',
-          '#8fbedc',
-          '#9ec6e6',
-          '#abd9e9',
-          '#c3deee',
-          
-          '#e0f3f8',
-          '#ffffbf',
-          '#fee090',
-          '#fdae61',
           '#f46d43',
+          '#fdae61',
+          '#fee090',
+          '#ffffbf',
+          '#e0f3f8',
+
+          '#c3deee',
+          '#abd9e9',
+          '#9ec6e6',
+          '#8fbedc',
+          '#6592cd',
+          '#476185',
         ]
       },
       text: ['High', 'Low'],
