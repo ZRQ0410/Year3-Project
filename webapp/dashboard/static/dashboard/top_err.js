@@ -10,6 +10,12 @@ const num_AAA_err = result_overall['num_AAA_err'];
 const top_A = result_overall['top_A_err'];
 const top_AA = result_overall['top_AA_err'];
 const top_AAA = result_overall['top_AAA_err'];
+const drilldownA = [];
+const drilldownAA = [];
+const drilldownAAA = [];
+top_A.forEach((n, i) => { drilldownA[i] = [n['id'], n['num']] });
+top_AA.forEach((n, i) => { drilldownAA[i] = [n['id'], n['num']] });
+top_AAA.forEach((n, i) => { drilldownAAA[i] = [n['id'], n['num']] });
 const colors = {'A': '#ee6666', 'AA': '#fac858', 'AAA': '#73c0de'};
 
 option = {
@@ -24,13 +30,16 @@ option = {
     }
   },
   grid: {
+    left: 70,
     bottom: 50,
   },
   xAxis: {
     name: null,
     data: ['A', 'AA', 'AAA']
   },
-  yAxis: {},
+  yAxis: {
+    type: 'value',
+  },
   dataGroupId: '',
   animationDurationUpdate: 500,
   series: {
@@ -80,33 +89,15 @@ option = {
 const drilldownData = [
   {
     dataGroupId: 'A',
-    data: [
-      [top_A[0]['id'], top_A[0]['num']],
-      [top_A[1]['id'], top_A[1]['num']],
-      [top_A[2]['id'], top_A[2]['num']],
-      [top_A[3]['id'], top_A[3]['num']],
-      [top_A[4]['id'], top_A[4]['num']],
-    ]
+    data: drilldownA
   },
   {
     dataGroupId: 'AA',
-    data: [
-      [top_AA[0]['id'], top_AA[0]['num']],
-      [top_AA[1]['id'], top_AA[1]['num']],
-      [top_AA[2]['id'], top_AA[2]['num']],
-      [top_AA[3]['id'], top_AA[3]['num']],
-      [top_AA[4]['id'], top_AA[4]['num']],
-    ]
+    data: drilldownAA
   },
   {
     dataGroupId: 'AAA',
-    data: [
-      [top_AAA[0]['id'], top_AAA[0]['num']],
-      [top_AAA[1]['id'], top_AAA[1]['num']],
-      [top_AAA[2]['id'], top_AAA[2]['num']],
-      [top_AAA[3]['id'], top_AAA[3]['num']],
-      [top_AAA[4]['id'], top_AAA[4]['num']],
-    ]
+    data: drilldownAAA
   }
 ];
 myChart.on('click', function (event) {
@@ -120,10 +111,11 @@ myChart.on('click', function (event) {
     myChart.setOption({
       tooltip: {
         extraCssText: 'max-width:240px;max-height:300px;white-space:normal',
+        // the value set to 1.55 should be displayed as correct value: 1
         formatter(params) {
           return `
           ${params.data.title} </br>
-          <b>Number:</b> ${params.data.value}`;
+          <b>Number:</b> ${params.data.value == 1.55 ? 1 : params.data.value}`;
         },
         axisPointer: {
           type: 'shadow',
@@ -135,8 +127,16 @@ myChart.on('click', function (event) {
         nameLocation: 'center',
         data: subData.data.map(function (item) {
           return item[0];
-
         })
+      },
+      yAxis: {
+        type: 'log',
+        axisLabel: {
+          formatter: function (value) {
+            // if y starts from 1, set to starting from 0
+              return value == 1 ? 0 : value
+          },
+        },
       },
       series: {
         type: 'bar',
@@ -159,7 +159,7 @@ myChart.on('click', function (event) {
           left: 'center',
           top: 18,
           style: {
-            text: 'Top 5 Errors in ' + subData.dataGroupId + ' Level',
+            text: 'Top 10 Errors in ' + subData.dataGroupId + ' Level',
             fontSize: 18,
             fontFamily: 'Microsoft YaHei',
             fontWeight: 'bold'
@@ -190,19 +190,20 @@ function get_descr(groupId) {
   if (groupId === 'A') {
     for (const i of top_A) {
       var content = '<b>ID:</b> ' + i['id'] + '</br><b>SC:</b> ' + i['sc'] + '</br><b>Error:</b> ' + i['msg'] + '</br><b>Description:</b> ' + i['descr']
-      data.push({title: content, value: i['num']})
+      // if value == 1, using log to display will cause undefined -> set to 1.55
+      data.push({title: content, value: i['num'] == 1 ? 1.55 : i['num']})
     }
   }
   else if (groupId === 'AA') {
     for (const i of top_AA) {
       var content = '<b>ID:</b> ' + i['id'] + '</br><b>SC:</b> ' + i['sc'] + '</br><b>Error:</b> ' + i['msg'] + '</br><b>Description:</b> ' + i['descr']
-      data.push({title: content, value: i['num']})
+      data.push({title: content, value: i['num'] == 1 ? 1.55 : i['num']})
     }
   }
   else if (groupId === 'AAA') {
     for (const i of top_AAA) {
       var content = '<b>ID:</b> ' + i['id'] + '</br><b>SC:</b> ' + i['sc'] + '</br><b>Error:</b> ' + i['msg'] + '</br><b>Description:</b> ' + i['descr']
-      data.push({title: content, value: i['num']})
+      data.push({title: content, value: i['num'] == 1 ? 1.55 : i['num']})
     }
   }
   return data;
