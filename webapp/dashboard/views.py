@@ -93,15 +93,15 @@ def _analyze_district():
     return result
 
 
-def _get_top5(lst):
+def _get_top10(lst):
     """
     Given a list of lists, get counts of all values, sort the elements from higher counts to lower counts.
     """
     counts = Counter(itertools.chain.from_iterable(lst)).most_common()
-    if len(counts) <= 5:
+    if len(counts) <= 10:
         return counts
     else:
-        return counts[:5]
+        return counts[:10]
 
 
 def _classify_errs():
@@ -182,7 +182,7 @@ def _analyze_overall():
     # err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
     # err = [e['report__err'] for e in err_query]
     # top_err = []
-    # err_counts = _get_top5(err)
+    # err_counts = _get_top10(err)
     # for issue in err_counts:
     #     sc, msg, descr = _get_detail(issue[0])
     #     top_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
@@ -191,7 +191,7 @@ def _analyze_overall():
     # likely_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__likely')
     # likely = [l['report__likely'] for l in likely_query]
     # top_likely = []
-    # likely_counts = _get_top5(likely)
+    # likely_counts = _get_top10(likely)
     # for issue in likely_counts:
     #     sc, msg, descr = _get_detail(issue[0])
     #     top_likely.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
@@ -200,7 +200,7 @@ def _analyze_overall():
     # potential_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__potential')
     # potential = [p['report__potential'] for p in potential_query]
     # top_potential = []
-    # potential_counts = _get_top5(potential)
+    # potential_counts = _get_top10(potential)
     # for issue in potential_counts:
     #     sc, msg, descr = _get_detail(issue[0])
     #     top_potential.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
@@ -209,7 +209,7 @@ def _analyze_overall():
     err_A_query = UrlTable.objects.filter(report_id__isnull=False, report__err_A__isnull=False).values('report__err_A')
     err_A = [e['report__err_A'] for e in err_A_query]
     top_A_err = []
-    err_A_counts = _get_top5(err_A)
+    err_A_counts = _get_top10(err_A)
     for issue in err_A_counts:
         sc, msg, descr = _get_detail(issue[0])
         top_A_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
@@ -218,7 +218,7 @@ def _analyze_overall():
     err_AA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AA__isnull=False).values('report__err_AA')
     err_AA = [e['report__err_AA'] for e in err_AA_query]
     top_AA_err = []
-    err_AA_counts = _get_top5(err_AA)
+    err_AA_counts = _get_top10(err_AA)
     for issue in err_AA_counts:
         sc, msg, descr = _get_detail(issue[0])
         top_AA_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
@@ -227,7 +227,7 @@ def _analyze_overall():
     err_AAA_query = UrlTable.objects.filter(report_id__isnull=False, report__err_AAA__isnull=False).values('report__err_AAA')
     err_AAA = [e['report__err_AAA'] for e in err_AAA_query]
     top_AAA_err = []
-    err_AAA_counts = _get_top5(err_AAA)
+    err_AAA_counts = _get_top10(err_AAA)
     for issue in err_AAA_counts:
         sc, msg, descr = _get_detail(issue[0])
         top_AAA_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
