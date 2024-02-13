@@ -13,7 +13,7 @@ option = {
   title: {
     text: 'Pencentage of Error Categories',
     left: 'center',
-    top: 30
+    top: 20
   },
   tooltip: {
     trigger: 'item'
@@ -21,7 +21,7 @@ option = {
   legend: {
     orient: 'horizontal',
     left: 'center',
-    bottom: 40
+    bottom: 20
   },
   series: [
     {
