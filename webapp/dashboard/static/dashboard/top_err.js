@@ -108,6 +108,7 @@ myChart.on('click', function (event) {
     if (!subData) {
       return;
     }
+    update_table(subData.dataGroupId);
     myChart.setOption({
       tooltip: {
         extraCssText: 'max-width:240px;max-height:300px;white-space:normal',
@@ -207,6 +208,27 @@ function get_descr(groupId) {
     }
   }
   return data;
+}
+
+function update_table(groupId) {
+  if (groupId === 'A') {
+    document.getElementById('tableA').style.display = 'block';
+    document.getElementById('tableAA').style.display = 'none';
+    document.getElementById('tableAAA').style.display = 'none';
+    document.getElementById('table-title').innerHTML = 'Level A';
+  }
+  else if (groupId === 'AA') {
+    document.getElementById('tableA').style.display = 'none';
+    document.getElementById('tableAA').style.display = 'block';
+    document.getElementById('tableAAA').style.display = 'none';
+    document.getElementById('table-title').innerHTML = 'Level AA';
+  }
+  else if (groupId === 'AAA') {
+    document.getElementById('tableA').style.display = 'none';
+    document.getElementById('tableAA').style.display = 'none';
+    document.getElementById('tableAAA').style.display = 'block';
+    document.getElementById('table-title').innerHTML = 'Level AAA';
+  }
 }
 
 option && myChart.setOption(option);

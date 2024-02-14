@@ -86,6 +86,78 @@
             <div id="top-err"></div>
             <script type="module" src="{% static 'dashboard/top_err.js' %}"></script>
           </div>
+
+          <!-- table -->
+          <p id="table-title">Level A</p>
+          <table class="table table-hover table-sm" id="tableA">
+            <thead class="head" id="headA">
+              <tr>
+                <th scope="col" style="border-top-left-radius:5px;">ID</th>
+                <th scope="col">Success Criteria</th>
+                <th scope="col">Error</th>
+                <th scope="col">Description</th>
+                <th scope="col" style="border-top-right-radius:5px;">Num</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for err in result_overall.top_A_err %}
+              <tr>
+                <th scope="row">{{ err.id }}</th>
+                <td>{{ err.sc|slice:"17:" }}</td>
+                <td>{{ err.msg }}</td>
+                <td>{{ err.descr }}</td>
+                <td>{{ err.num }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+
+          <table class="table table-hover table-sm" id="tableAA">
+            <thead class="head" id="headAA">
+              <tr>
+                <th scope="col" style="border-top-left-radius:5px;">ID</th>
+                <th scope="col">Success Criteria</th>
+                <th scope="col">Error</th>
+                <th scope="col">Description</th>
+                <th scope="col" style="border-top-right-radius:5px;">Num</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for err in result_overall.top_AA_err %}
+              <tr>
+                <th scope="row">{{ err.id }}</th>
+                <td>{{ err.sc|slice:"17:" }}</td>
+                <td>{{ err.msg }}</td>
+                <td>{{ err.descr }}</td>
+                <td>{{ err.num }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-hover table-sm" id="tableAAA">
+            <thead class="head" id="headAAA">
+              <tr>
+                <th scope="col" style="border-top-left-radius:5px;">ID</th>
+                <th scope="col">Success Criteria</th>
+                <th scope="col">Error</th>
+                <th scope="col">Description</th>
+                <th scope="col" style="border-top-right-radius:5px;">Num</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for err in result_overall.top_AAA_err %}
+              <tr>
+                <th scope="row">{{ err.id }}</th>
+                <td>{{ err.sc|slice:"17:" }}</td>
+                <td>{{ err.msg }}</td>
+                <td>{{ err.descr }}</td>
+                <td>{{ err.num }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
 
         <!-- bar chart group -->
