@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'dashboard',
+    'django_apscheduler'
 ]
 
 STATIC_URL = '/static/'
