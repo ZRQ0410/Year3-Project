@@ -2,7 +2,6 @@
 <html>
 <head>
     {{ result_district|json_script:"result_district" }}
-    <!-- {{ result_overall|json_script:"result_overall" }} -->
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
@@ -12,16 +11,6 @@
 </head>
 
 <body>
-    <!-- <script>
-        const result_district = JSON.parse(document.getElementById('result_district').textContent);
-        const a = [];
-        for (const [key, value] of Object.entries(result_district)) {
-            // mean_err.push({'name': key, 'value': value['mean_err'] });
-            a.push(value['A_percent']);
-        }
-        console.log(Math.max.apply(Math, a), Math.min.apply(Math, a));
-    </script> -->
-
     <!-- side bar -->
     <div class="d-flex flex-column flex-shrink-0 p-3" style="width: 220px;height: 100vh;float: left;background-color: rgb(242, 243, 244);">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-black text-decoration-none" style="margin-left: 1rem">
@@ -30,13 +19,23 @@
         <hr>
         <ul class="nav nav-pills flex-column mb-auto">
           <li class="nav-item">
-            <a href="/" class="nav-link" id="overall" style="color: #64748B;">
+            <a href="/" class="nav-link" style="color: #64748B;">
               Overall
             </a>
           </li>
           <li>
-            <a href="/districts" class="nav-link" id="districts" aria-current="page" style="color: rgb(117, 146, 191);font-weight: 600;background-color: rgb(223, 232, 241);">
+            <a href="/districts" class="nav-link" aria-current="page" style="color: rgb(117, 146, 191);font-weight: 600;background-color: rgb(223, 232, 241);">
               Districts
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/trend" class="nav-link" style="color: #64748B;">
+              Trend
+            </a>
+          </li>
+          <li>
+            <a href="/gp-detail" class="nav-link" style="color: #64748B;">
+              GP Detail
             </a>
           </li>
         </ul>

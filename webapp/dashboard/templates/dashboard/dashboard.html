@@ -27,6 +27,16 @@
               Districts
             </a>
           </li>
+          <li>
+            <a href="/trend" class="nav-link" style="color: #64748B;">
+              Trend
+            </a>
+          </li>
+          <li>
+            <a href="/gp-detail" class="nav-link" style="color: #64748B;">
+              GP Detail
+            </a>
+          </li>
         </ul>
         <hr>
       </div>
@@ -90,7 +100,7 @@
           <!-- table -->
           <p id="table-title">Level A</p>
           <table class="table table-hover table-sm" id="tableA">
-            <thead class="head" id="headA">
+            <thead class="t-head" id="headA">
               <tr>
                 <th scope="col" style="border-top-left-radius:5px;">ID</th>
                 <th scope="col">Success Criteria</th>
@@ -99,7 +109,7 @@
                 <th scope="col" style="border-top-right-radius:5px;">Num</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="t-body">
               {% for err in result_overall.top_A_err %}
               <tr>
                 <th scope="row">{{ err.id }}</th>
@@ -114,7 +124,7 @@
 
 
           <table class="table table-hover table-sm" id="tableAA">
-            <thead class="head" id="headAA">
+            <thead class="t-head" id="headAA">
               <tr>
                 <th scope="col" style="border-top-left-radius:5px;">ID</th>
                 <th scope="col">Success Criteria</th>
@@ -123,7 +133,7 @@
                 <th scope="col" style="border-top-right-radius:5px;">Num</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="t-body">
               {% for err in result_overall.top_AA_err %}
               <tr>
                 <th scope="row">{{ err.id }}</th>
@@ -137,7 +147,7 @@
           </table>
 
           <table class="table table-hover table-sm" id="tableAAA">
-            <thead class="head" id="headAAA">
+            <thead class="t-head" id="headAAA">
               <tr>
                 <th scope="col" style="border-top-left-radius:5px;">ID</th>
                 <th scope="col">Success Criteria</th>
@@ -146,7 +156,7 @@
                 <th scope="col" style="border-top-right-radius:5px;">Num</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="t-body">
               {% for err in result_overall.top_AAA_err %}
               <tr>
                 <th scope="row">{{ err.id }}</th>

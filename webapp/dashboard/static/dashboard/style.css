@@ -69,14 +69,14 @@
     border-bottom: 5px solid transparent;
     border-radius: 5px;
 }
-thead, tbody { display: block; }
-thead {
+.t-head, .t-body { display: block; }
+.t-head {
     width: 618px;
     text-align: center;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
-tbody {
+.t-body {
     width: 618px;
     height: 227px;
     overflow-y: auto;
@@ -84,30 +84,30 @@ tbody {
     font-size: 14px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
-tbody th {
+.t-body th {
     font-family: 'Courier New', Courier, monospace;
     vertical-align: middle;
     text-align: center;
 }
-tbody td {
+.t-body td {
     vertical-align: middle;
 }
 tr {
     border: #ced4da;
 }
-tbody th, thead th:nth-child(1) {
+.t-body th, .t-head th:nth-child(1) {
     width: 50px;
 }
-tbody td:nth-child(2), thead th:nth-child(2) {
+.t-body td:nth-child(2), .t-head th:nth-child(2) {
     width: 170px;
 }
-tbody td:nth-child(3), thead th:nth-child(3) {
+.t-body td:nth-child(3), .t-head th:nth-child(3) {
     width: 165px;
 }
-tbody td:nth-child(4), thead th:nth-child(4) {
+.t-body td:nth-child(4), .t-head th:nth-child(4) {
     width: 175px;
 }
-tbody td:nth-child(5), thead th:nth-child(5) {
+.t-body td:nth-child(5), .t-head th:nth-child(5) {
     font-weight: bold;
     width: 50px;
     text-align: center;
@@ -144,10 +144,6 @@ tbody td:nth-child(5), thead th:nth-child(5) {
 #headAAA, #headAAA th {
     background-color: #e0f1f7;
 }
-
-
-
-
 
 
 /* map1 */
@@ -219,3 +215,17 @@ input, label {
     border-radius: 5px 5px;
 }
 
+
+/* mix1 */
+.mix-plot-cat {
+    float: left;
+    width: 600px;
+    height: 615px;
+}
+/* mix2 */
+.mix-plot-err {
+    float: right;
+    margin-right: 8px;
+    width: 600px;
+    height: 615px;
+}

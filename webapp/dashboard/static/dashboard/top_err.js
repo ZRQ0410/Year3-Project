@@ -16,7 +16,7 @@ const drilldownAAA = [];
 top_A.forEach((n, i) => { drilldownA[i] = [n['id'], n['num']] });
 top_AA.forEach((n, i) => { drilldownAA[i] = [n['id'], n['num']] });
 top_AAA.forEach((n, i) => { drilldownAAA[i] = [n['id'], n['num']] });
-const colors = {'A': '#ee6666', 'AA': '#fac858', 'AAA': '#73c0de'};
+const colors = {'A': '#ed8c8c', 'AA': '#fbda8d', 'AAA': '#9cd2e8'};
 
 option = {
   tooltip: {
