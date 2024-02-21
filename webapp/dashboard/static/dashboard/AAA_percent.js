@@ -73,6 +73,7 @@ $.get('../static/dashboard/local_admin.json', function (geoJson) {
         emphasis: {
           label: {
             show: true,
+            backgroundColor: 'white'
           },
         },
         

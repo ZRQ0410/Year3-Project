@@ -3,7 +3,6 @@ var myChart = echarts.init(chartDom);
 var option;
 
 const result_district = JSON.parse(document.getElementById('result_district').textContent);
-// const result_overall = JSON.parse(document.getElementById('result_overall').textContent);
 const mean_err = [];
 for (const [key, value] of Object.entries(result_district)) {
     mean_err.push({'name': key, 'value': value['mean_err'].toFixed(2)});
@@ -74,6 +73,7 @@ $.get('../static/dashboard/local_admin.json', function (geoJson) {
         emphasis: {
           label: {
             show: true,
+            backgroundColor: 'white'
           },
         },
         
