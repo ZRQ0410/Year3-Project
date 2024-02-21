@@ -229,3 +229,80 @@ input, label {
     width: 600px;
     height: 615px;
 }
+
+
+.map-plot {
+    float: left;
+    width: 600px;
+    height: 615px;
+    border: transparent;
+}
+#lad-map {
+    padding-left: 0;
+}
+.list-display {
+    float: right;
+    margin-right: 8px;
+    width: 600px;
+    height: 615px;
+    border: transparent;
+}
+.loc-descr{
+    font-size: 26px;
+}
+.loc-letter {
+    margin-left: 10px;
+    font-size: 20px;
+    color: rgb(93, 123, 169);
+}
+.letters {
+    padding-left: 0;
+    margin-bottom: 10px;
+}
+.letters li {
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    list-style-type: none;
+    margin-top: 5px;
+    text-align: center;
+    line-height: 25px;
+    background-color: rgb(242, 243, 244);
+    color: #64748B;
+}
+.letters li a {
+    display: block;
+    width: 25px;
+    height: 25px;
+    text-decoration: none;
+    color: rgb(117, 146, 191);
+    font-weight: bold;
+}
+.letters li:hover {
+    background-color: gainsboro;
+}
+.letters li.selected {
+    background-color: rgb(223, 232, 241);
+    border-bottom: 3px solid rgb(9, 73, 138);
+}
+.partial-districts {
+    padding-left: 0;
+}
+.partial-districts li {
+    width: 270px;
+    height: 10px;
+    display: inline-block;
+    list-style-type: none;
+    /* margin-top: 5px; */
+    text-align: center;
+    /* line-height: 25px; */
+}
+.partial-districts li a {
+    display: block;
+    text-align: left;
+    font-size: 14px;
+    /* width: 25px; */
+    /* height: 25px;  */
+    text-decoration: none;
+    color: #64748B;
+}

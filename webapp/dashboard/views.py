@@ -10,6 +10,8 @@ import json
 import requests
 import itertools
 from collections import Counter
+import re
+import string
 
 def home(request):
     # each time open the page: check if json files exist
@@ -28,10 +30,9 @@ def home(request):
         'result_overall': result_overall,
     }
 
-    # template = loader.get_template('dashboard/tttt.html')
-
     return HttpResponse(template.render(context, request))
     # return render(request, 'dashboard/dashboard.html')
+
 
 def test(request):
     with open('dashboard/data/result_overall.json') as f2:
@@ -278,6 +279,35 @@ def districts(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+def _url_form(location):
+    # strip punctuation
+    loc = location.translate(str.maketrans('', '', string.punctuation))
+    # replace whitespace with -
+    loc = re.sub(r"\s+", '-', loc)
+    return loc
+
+def gpdetail_loc(request, letter='A'):
+    # get unique locations
+    districts = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct()
+    dist = [i['lad'] for i in districts]
+    partial = sorted([i['lad'] for i in districts if i['lad'].startswith(letter)])
+    urls = [_url_form(i) for i in partial]
+
+    context = {
+        'districts': dist,
+        'name_url': zip(partial, urls),
+        'letter': letter
+    }
+    template = loader.get_template('dashboard/gpdetail.html')
+    return HttpResponse(template.render(context, request))
+
+
+
+def trend(request):
+    template = loader.get_template('dashboard/trend.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
 
 # evaluate all urls periodically
 def _achecker_evaluation():

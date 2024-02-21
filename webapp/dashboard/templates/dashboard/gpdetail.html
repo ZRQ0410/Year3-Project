@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {{ result_overall|json_script:"result_overall" }}
+    {{ districts|json_script:"districts" }}
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
@@ -19,7 +19,7 @@
         <hr>
         <ul class="nav nav-pills flex-column mb-auto">
           <li class="nav-item">
-            <a href="/" class="nav-link" style="color: #64748B;">
+            <a href="/" class="nav-link" id="overall" style="color: #64748B;">
               Overall
             </a>
           </li>
@@ -29,12 +29,12 @@
             </a>
           </li>
           <li>
-            <a href="/trend" class="nav-link" aria-current="page" style="color: rgb(117, 146, 191);font-weight: 600;background-color: rgb(223, 232, 241);">
+            <a href="/trend" class="nav-link" style="color: #64748B;">
               Trend
             </a>
           </li>
           <li>
-            <a href="/gp-detail/loc" class="nav-link" style="color: #64748B;">
+            <a href="/gp-detail/loc" class="nav-link" aria-current="page" style="color: rgb(117, 146, 191);font-weight: 600;background-color: rgb(223, 232, 241);">
               GP Detail
             </a>
           </li>
@@ -44,22 +44,37 @@
     
     <main class="col-md-9 col-lg-10 px-md-4" style="margin-left: 230px;">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);">Trend Analysis</h3>
+        <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);">GP Detail</h3>
         </div>
 
         <!-- card 1 -->
-        <div class="mix-plot-cat card">
-            <!-- <div class="card-header"></div> -->
-            <div class="card-body" id="trend-cat">
-              <script type="module" src="{% static 'dashboard/trend_cat.js' %}"></script>
-            </div>
-        </div>
+        <div class="map-plot card">
+          <!-- <div class="card-header"></div> -->
+          <div class="card-body" id="lad-map">
+            <script type="module" src="{% static 'dashboard/map.js' %}"></script>
+          </div>
+      </div>
 
         <!-- card 2 -->
-        <div class="mix-plot-err card">
-            <div class="card-body" id="trend-err">
-                <!-- <div id="trend-err"></div> -->
-                <script type="module" src="{% static 'dashboard/trend_err.js' %}"></script>
+        <div class="list-display card">
+            <div class="card-body" id="lad-list">
+              <div><span class="loc-descr">Location A-Z</span><span class="loc-letter">Beginning with letter '<strong>{{letter}}</strong>'</div>
+              <ul class="letters">
+                {% for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                {% if letter == i %}
+                  <li class="selected"><a href="/gp-detail/{{i}}">{{ i }}</a></li>
+                {% else %}
+                  <li><a href="/gp-detail/loc/{{i}}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            <!-- <h5>{{letter}}</h5> -->
+            <ul class="partial-districts">
+              {% for name, url in name_url %}
+                <li><a href="/gp-detail/{{url}}">{{ name }}</a></li>
+              {% endfor %}
+            </ul>
+            <div></div>
             </div>
         </div>
 
