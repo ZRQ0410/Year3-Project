@@ -1,10 +1,12 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.db.models import Sum
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import UrlTable
 from .models import Report
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 import time
 import json
 import requests
@@ -35,12 +37,12 @@ def home(request):
 
 
 def test(request):
-    with open('dashboard/data/result_overall.json') as f2:
-            result_overall = json.load(f2)
+    r = Report.objects.filter(start_time='2024-02-25 14:33:48.000000')
+
     
     template = loader.get_template('dashboard/test.html')
     context = {
-        'result_overall': result_overall
+        'test': r
     }
 
     return HttpResponse(template.render(context, request))
@@ -287,30 +289,63 @@ def _url_form(location):
     loc = re.sub(r"\s+", '-', loc)
     return loc
 
+
 def gpdetail_loc(request, letter='A'):
     # get unique locations
     districts = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct()
     dist = [i['lad'] for i in districts]
-    partial = sorted([i['lad'] for i in districts if i['lad'].startswith(letter)])
-    urls = [_url_form(i) for i in partial]
+    names = sorted([i['lad'] for i in districts if i['lad'].startswith(letter)])
+    # urls = [_url_form(i) for i in partial]
 
     context = {
         'districts': dist,
-        'name_url': zip(partial, urls),
+        # 'name_url': zip(names, urls),
+        'names': names,
         'letter': letter
     }
     template = loader.get_template('dashboard/gpdetail.html')
     return HttpResponse(template.render(context, request))
 
 
+def gpdetail_lad(request, lad):
+    evaluated_gps = UrlTable.objects.filter(lad=lad, report_id__isnull=False, report__num_err__isnull=False)
+    for gp in evaluated_gps:
+        url = gp.url
+        if url[-1] == '/':
+            gp.url = url[:-1]
+
+    p = Paginator(evaluated_gps, 10)
+    page_number = request.GET.get('page')
+    if page_number is None:
+        page_number = 1
+    page_obj = p.get_page(page_number)
+
+    context = {
+        'current_page': int(page_number),
+        'page_num': p.num_pages,
+        'lad': lad,
+        'page_obj': page_obj
+    }
+
+    template = loader.get_template('dashboard/gpdetail_lad.html')
+    return HttpResponse(template.render(context, request))
+
+
+def gpdetail_report(request, report_id):
+    context = {
+        'report_id': report_id
+    }
+    template = loader.get_template('dashboard/gpdetail_report.html')
+    return HttpResponse(template.render(context, request))
 
 def trend(request):
     template = loader.get_template('dashboard/trend.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
+
 # evaluate all urls periodically
-def _achecker_evaluation():
+def _achecker_evaluation(current_time):
     """
     Update all data in the Report table.
     Columns in Report table:
@@ -320,7 +355,8 @@ def _achecker_evaluation():
         num_A, num_AA, num_AAA -> int: number of errors that violate A level sc, AA and AAA level (each level excluded)
         err_A, err_AA, err_AAA -> [id1, id2, ...], [], [] error IDs in A / AA / AAA level
     """
-    reports = Report.objects.all()
+    # get latest report records to insert result
+    reports = Report.objects.filter(srart_time=current_time)
 
     # read 3 levels (A / AA / AAA) of issue IDs from issue_ids.json file (set of strings)
     with open('dashboard/data/issue_ids.json', 'r') as f:
@@ -418,30 +454,28 @@ def _achecker_evaluation():
 
         # save updated report object
         report.save()
+
+
+# map UrlTable to Report table (update foreign key)
+def _url2report(current_time):
+    # get all unique working urls
+    urls = UrlTable.objects.filter(state=1).values('url').distinct()
+    url_lst = [u['url'] for u in urls]
+
+    # put all urls in Report table
+    for u in url_lst:
+        r = Report(url=u, start_time=current_time)
+        r.save()
+
+    # get all objects in url table
+    objs = UrlTable.objects.all()
+    # match the url in UrlTable with url in Report
+    for i in objs:
+        if i.url in url_lst:
+            r = Report.objects.get(url=i.url, start_time=current_time)
+            i.report = r
+            i.save()
     
-
-
-# one time function to map UrlTable to Report table (add foreign key)
-# def url2report(request):
-#     # get all unique working urls
-#     urls = UrlTable.objects.filter(state=1).values('url').distinct()
-#     url_lst = [u['url'] for u in urls]
-
-#     # put all urls in Report table
-#     for u in url_lst:
-#         r = Report(url=u)
-#         r.save()
-
-#     # get all objects in url table
-#     objs = UrlTable.objects.all()
-#     # match the url in UrlTable with url in Report
-#     for i in objs:
-#         if i.url in url_lst:
-#             r = Report.objects.get(url=i.url)
-#             i.report = r
-#             i.save()
-    
-#     return HttpResponse('Done')
 
 # one-time function to add districts to Url table
 # def get_districts(postcode):

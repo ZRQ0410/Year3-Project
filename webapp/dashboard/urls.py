@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-import datetime, json, logging
+from datetime import datetime
+import json, logging
 from apscheduler.schedulers.background import BackgroundScheduler
 # from django_apscheduler.jobstores import register_events, DjangoResultStoreMixin
 from django_apscheduler.jobstores import DjangoJobStore, register_job
@@ -8,9 +9,12 @@ from django_apscheduler.jobstores import DjangoJobStore, register_job
 urlpatterns = [
     path('', views.home),
     path('districts/', views.districts),
+    path('trend/', views.trend),
+    path('gp-detail/loc/', views.gpdetail_loc),
+    path('gp-detail/loc/<str:letter>', views.gpdetail_loc),
+    path('gp-detail/<str:lad>', views.gpdetail_lad),
+    path('gp-detail/report/<int:report_id>', views.gpdetail_report),
     path('test/', views.test),
-    # path('achecker_evaluation/', views.achecker_evaluation),
-    # path('url2report/', views.url2report),
     # path('get_districts/', views.get_districts),
 ]
 
@@ -19,12 +23,13 @@ scheduler = BackgroundScheduler()
 # job stores: default DjangoJobStore()
 scheduler.add_jobstore(DjangoJobStore(), "default")
 
-# @register_job(scheduler, "interval", seconds=60, id='test_job2')
 # execute on the first day of month 1, 4, 7, 10, at 00:00, till 2024-09-01
 @register_job(scheduler, 'cron', month='1,4,7,10', day=1, hour=0, minute=0, second=0, end_date='2024-09-01', id='job_eval', replace_existing=True)
 def job_eval():
+    current_time = datetime.now()
+    views._url2report(current_time)
     # evaluate all urls in the database
-    views._achecker_evaluation()
+    views._achecker_evaluation(current_time)
     # analyze the results
     result_district = views._analyze_district()
     result_overall = views._analyze_overall()

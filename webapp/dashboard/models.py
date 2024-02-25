@@ -23,6 +23,7 @@ class Report(models.Model):
     err_A = models.JSONField(blank=True, null=True)
     err_AA = models.JSONField(blank=True, null=True)
     err_AAA = models.JSONField(blank=True, null=True)
+    start_time = models.DateTimeField(blank=True, null=True)
 
 
 class UrlTable(models.Model):
