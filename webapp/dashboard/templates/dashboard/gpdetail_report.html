@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {{ districts|json_script:"districts" }}
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
@@ -12,7 +11,7 @@
 
 <body>
     <!-- side bar -->
-    <div class="d-flex flex-column flex-shrink-0 p-3" style="width: 220px;height: 100vh;float: left;background-color: rgb(242, 243, 244);">
+    <div class="d-flex flex-column flex-shrink-0 p-3" style="position: fixed;width: 220px;height: 100vh;float: left;background-color: rgb(242, 243, 244);">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-black text-decoration-none" style="margin-left: 1rem">
           <span class="fs-4" style="font-family: Verdana;">Analysis</span>
         </a>
@@ -43,41 +42,13 @@
     </div>
     
     <main class="col-md-9 col-lg-10 px-md-4" style="margin-left: 230px;">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);"><a href="/gp-detail/loc">GP Detail</a></h3>
-        </div>
-
-        <!-- card 1 -->
-        <div class="map-plot card">
-          <!-- <div class="card-header"></div> -->
-          <div class="card-body" id="lad-map">
-            <script type="module" src="{% static 'dashboard/map.js' %}"></script>
-          </div>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);">GP Detail</h3>
       </div>
 
-        <!-- card 2 -->
-        <div class="list-display card">
-            <div class="card-body" id="lad-list">
-              <div><span class="loc-descr">Location A-Z</span><span class="loc-letter">Beginning with letter '<strong>{{letter}}</strong>'</div>
-              <ul class="letters">
-                {% for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                {% if letter == i %}
-                  <li class="selected"><a href="/gp-detail/{{i}}">{{ i }}</a></li>
-                {% else %}
-                  <li><a href="/gp-detail/loc/{{i}}">{{ i }}</a></li>
-                {% endif %}
-                {% endfor %}
-              </ul>
-            <!-- <h5>{{letter}}</h5> -->
-            <ul class="partial-districts">
-              {% for name in names %}
-                <li><a href="/gp-detail/{{name}}">{{ name }}</a></li>
-              {% endfor %}
-            </ul>
-            <div></div>
-            </div>
-        </div>
+      <h4>id: {{ report_id }}</h4>
 
+      
     </main>
     
 </body>

@@ -68,14 +68,7 @@ $.get('../../static/dashboard/local_admin.json', function (geoJson) {
             backgroundColor: 'white'
           },
         },
-        select: {
-          itemStyle: {
-            areaColor: '#f6ebb6'
-          },
-          label: {
-            show: false
-          }
-        },
+        select: 'disabled',
         data: data
       }
     ]
@@ -84,9 +77,9 @@ $.get('../../static/dashboard/local_admin.json', function (geoJson) {
   myChart.on('click', function(args) {
     if (districts.includes(args.data.name)) {
       // remove punctuation, replace whitespace with -
-      var punctuation = /[\.,?!]/g;
-      var s = args.data.name.replace(punctuation, "").replace(/ /g,"-");;
-      location.href = '/gp-detail/' + s; 
+      // var punctuation = /[\.,?!]/g;
+      // var s = args.data.name.replace(punctuation, "").replace(/ /g,"-");;
+      location.href = '/gp-detail/' + args.data.name;
     }
 })
 });
