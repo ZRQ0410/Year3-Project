@@ -8,7 +8,7 @@ for (const d of districts) {
     data.push({'name': d, 'value': 1});
 }
 
-myChart.showLoading();
+myChart.showLoading({maskColor: '#f5f6ff'});
 // https://martinjc.github.io/UK-GeoJSON/
 // in attributes (geojson): convert the key of the name value into 'name'!
 // otherwise echarts will not be able to recognize the name of each region
@@ -17,6 +17,7 @@ $.get('../../static/dashboard/local_admin.json', function (geoJson) {
   echarts.registerMap('England', geoJson);
 
   option = {
+    backgroundColor: '#f5f6ff',
     tooltip: {
       trigger: 'item',
       showDelay: 0,

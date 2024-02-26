@@ -1,3 +1,40 @@
+body {
+    background-color: #f5f6ff;
+}
+.card {
+    border-color: #e0e1eb;
+}
+.card-header {
+    border-bottom: 1px solid #e0e1eb;
+    background-color: #8aa9db33;
+}
+
+.side-bar {
+    position: fixed;
+    width: 220px;
+    height: 100vh;
+    float: left;
+    background-color: #123456;
+    
+}
+span.fs-4 {
+    color: white;
+    font-weight: 600;
+}
+.nav-link {
+    color: white;
+}
+.nav-link:hover {
+    color: white;
+}
+.side-bar hr {
+    color: white;
+}
+
+h3 a, h3 {
+    font-weight: 600;
+}
+
 .cards {
     margin-right: 685px;
 }
@@ -238,6 +275,7 @@ input, label {
 }
 #lad-map {
     padding-left: 0;
+    background-color: #f5f6ff;
 }
 .list-display {
     float: right;
@@ -266,7 +304,7 @@ input, label {
     margin-top: 5px;
     text-align: center;
     line-height: 25px;
-    background-color: rgb(242, 243, 244);
+    background-color: #c2c7cf33;
     color: #64748B;
 }
 .letters li a {
@@ -311,14 +349,18 @@ h3 a {
     color: rgb(117, 146, 191);
     text-decoration: none;
 }
+#lad-list {
+    background-color: #f5f6ff;
+}
 .lad-name {
     margin-left: 5px;
     margin-bottom: 5px;
     font-size: 20px;
-    color: #585858;
+    color: #868585;
 }
 .lad-name span {
     font-weight: 600;
+    color: #585858;
 }
 /* gp lists */
 .gp-result {
@@ -328,6 +370,8 @@ h3 a {
     border-radius: 5px;
     margin-bottom: 10px;
     box-shadow: 0 6px 4px -2px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-color: #e0e1eb;
 }
 .gp-name {
     margin-top: 10px;
