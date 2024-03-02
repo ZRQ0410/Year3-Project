@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.db.models import Sum
+from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import UrlTable
 from .models import Report
@@ -14,6 +15,7 @@ import itertools
 from collections import Counter
 import re
 import string
+
 
 def home(request):
     # each time open the page: check if json files exist
@@ -291,20 +293,50 @@ def _url_form(location):
 
 
 def gpdetail_loc(request, letter='A'):
-    # get unique locations
-    districts = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct()
-    dist = [i['lad'] for i in districts]
-    names = sorted([i['lad'] for i in districts if i['lad'].startswith(letter)])
-    # urls = [_url_form(i) for i in partial]
+    keyword = request.GET.get('search')
+    if keyword:
+        names =  request.GET.get('search')
+        # get all gps where gp name / postcode / location include the key word
+        searched_gps = UrlTable.objects.filter(Q(gp__icontains=keyword) | Q(postcode__icontains=keyword) | Q(lad__icontains=keyword)).filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False)
+        
+        for gp in searched_gps:
+            url = gp.url
+            if url[-1] == '/':
+                gp.url = url[:-1]
 
-    context = {
-        'districts': dist,
-        # 'name_url': zip(names, urls),
-        'names': names,
-        'letter': letter
-    }
-    template = loader.get_template('dashboard/gpdetail.html')
-    return HttpResponse(template.render(context, request))
+        p = Paginator(searched_gps, 10)
+        page_number = request.GET.get('page')
+        if page_number is None:
+            page_number = 1
+        page_obj = p.get_page(page_number)
+
+        context = {
+            't': page_number,
+            'keyword': keyword,
+            'num': p.count,
+            'current_page': int(page_number),
+            'page_num': p.num_pages,
+            'page_obj': page_obj
+        }
+        
+        template = loader.get_template('dashboard/gpdetail_search.html')
+        return HttpResponse(template.render(context, request))
+    else:
+
+        # get unique locations
+        districts = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct()
+        dist = [i['lad'] for i in districts]
+        names = sorted([i['lad'] for i in districts if i['lad'].startswith(letter)])
+        # urls = [_url_form(i) for i in partial]
+
+        context = {
+            'districts': dist,
+            # 'name_url': zip(names, urls),
+            'names': names,
+            'letter': letter
+        }
+        template = loader.get_template('dashboard/gpdetail.html')
+        return HttpResponse(template.render(context, request))
 
 
 def gpdetail_lad(request, lad):

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    {% load gp %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"> 
+    <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js" integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Accessibility Evaluation</title>
+</head>
+
+<body>
+    <!-- side bar -->
+    <div class="side-bar d-flex flex-column flex-shrink-0 p-3">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-black text-decoration-none" style="margin-left: 1rem">
+          <span class="fs-4" style="font-family: Verdana;">Analysis</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="/" class="nav-link" id="overall">
+              Overall
+            </a>
+          </li>
+          <li>
+            <a href="/districts" class="nav-link">
+              Districts
+            </a>
+          </li>
+          <li>
+            <a href="/trend" class="nav-link">
+              Trend
+            </a>
+          </li>
+          <li>
+            <a href="/gp-detail/loc" class="nav-link" aria-current="page" style="color: rgb(117, 146, 191);font-weight: 600;background-color: rgb(223, 232, 241);">
+              GP Detail
+            </a>
+          </li>
+        </ul>
+        <hr>
+    </div>
+    
+    <main class="col-md-9 col-lg-10 px-md-4" style="margin-left: 230px;">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);"><a href="/gp-detail/loc">GP Detail</a></h3>
+      <form class="d-flex" role="search" method="get" action="{% url 'gpdetail_loc' %}">
+        <input class="form-control me-2" type="search" placeholder="Search GP" aria-label="Search" name="search">
+        <button class="btn search-btn" type="submit">Search</button>
+      </form>
+      </div>
+
+      <div class="lad-name">{{ num }} results for <span>'{{ keyword }}'</span><a href="/gp-detail/loc" class="back"><i class="fa fa-angle-left" aria-hidden="true"></i>Back</a></div>
+
+      <div class="result-container">
+      {% for gp in page_obj %}
+      <div class="gp-result">
+        <div class="gp-name">
+          <h5><a href="/gp-detail/report/{{gp.id}}_{{gp.report_id}}">{{gp.gp|highlight_search:keyword}}</a></h5>
+          <p>{{gp.lad|highlight_search:keyword}}, {{gp.postcode|highlight_search:keyword}}</p>
+        </div>
+        <div class="gp-website">
+          <p class="gp-url"><a href="{{gp.url}}" target="_blank">{{gp.url}}</a></p>
+        </div>
+      </div>
+      {% endfor %}
+      </div>
+
+      <nav aria-label="Page navigation" class="bottom">
+        {% if page_num >= 2 %}
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?search={{keyword}}&?page={{current_page|add:-1}}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% endif %}
+          {% for page in page_obj.paginator.page_range %}
+            {% if page == current_page %}
+            <li class="page-item current"><a class="page-link">{{ page }}</a></li>
+            {% else %}
+            <li class="page-item other"><a class="page-link" href="?search={{keyword}}&?page={{page}}">{{ page }}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?search={{keyword}}&?page={{current_page|add:1}}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+        {% endif %}
+      </nav>
+
+    </main>
+    
+</body>
+</html>
+

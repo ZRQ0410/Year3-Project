@@ -45,6 +45,10 @@
     <main class="col-md-9 col-lg-10 px-md-4" style="margin-left: 230px;">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);"><a href="/gp-detail/loc">GP Detail</a></h3>
+        <form class="d-flex" role="search" method="get" action="{% url 'gpdetail_loc' %}">
+          <input class="form-control me-2" type="search" placeholder="Search GP" aria-label="Search" name="search">
+          <button class="btn search-btn" type="submit">Search</button>
+        </form>
         </div>
 
         <!-- card 1 -->
