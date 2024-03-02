@@ -293,11 +293,11 @@ def _url_form(location):
 
 
 def gpdetail_loc(request, letter='A'):
+    # search bar function
     keyword = request.GET.get('search')
     if keyword:
-        names =  request.GET.get('search')
         # get all gps where gp name / postcode / location include the key word
-        searched_gps = UrlTable.objects.filter(Q(gp__icontains=keyword) | Q(postcode__icontains=keyword) | Q(lad__icontains=keyword)).filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False)
+        searched_gps = UrlTable.objects.filter(Q(gp__icontains=keyword) | Q(postcode__icontains=keyword) | Q(lad__icontains=keyword)).filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).order_by('lad', 'gp')
         
         for gp in searched_gps:
             url = gp.url
@@ -306,23 +306,19 @@ def gpdetail_loc(request, letter='A'):
 
         p = Paginator(searched_gps, 10)
         page_number = request.GET.get('page')
-        if page_number is None:
-            page_number = 1
         page_obj = p.get_page(page_number)
 
         context = {
-            't': page_number,
             'keyword': keyword,
+            'total_page': p.num_pages,
             'num': p.count,
-            'current_page': int(page_number),
-            'page_num': p.num_pages,
             'page_obj': page_obj
         }
         
         template = loader.get_template('dashboard/gpdetail_search.html')
         return HttpResponse(template.render(context, request))
+    
     else:
-
         # get unique locations
         districts = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct()
         dist = [i['lad'] for i in districts]
@@ -340,7 +336,7 @@ def gpdetail_loc(request, letter='A'):
 
 
 def gpdetail_lad(request, lad):
-    evaluated_gps = UrlTable.objects.filter(lad=lad, report_id__isnull=False, report__num_err__isnull=False)
+    evaluated_gps = UrlTable.objects.filter(lad=lad, report_id__isnull=False, report__num_err__isnull=False).order_by('gp')
     for gp in evaluated_gps:
         url = gp.url
         if url[-1] == '/':
@@ -348,13 +344,10 @@ def gpdetail_lad(request, lad):
 
     p = Paginator(evaluated_gps, 10)
     page_number = request.GET.get('page')
-    if page_number is None:
-        page_number = 1
     page_obj = p.get_page(page_number)
 
     context = {
-        'current_page': int(page_number),
-        'page_num': p.num_pages,
+        'total_page': p.num_pages,
         'lad': lad,
         'page_obj': page_obj
     }

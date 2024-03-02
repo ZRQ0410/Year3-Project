@@ -63,33 +63,47 @@
       {% endfor %}
       </div>
 
+      {% if total_page > 1 %}
       <nav aria-label="Page navigation" class="bottom">
-        {% if page_num >= 2 %}
         <ul class="pagination">
           {% if page_obj.has_previous %}
           <li class="page-item">
-            <a class="page-link" href="?page={{current_page|add:-1}}" aria-label="Previous">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>
           {% endif %}
+
+          {% if page_obj.number|add:'-4' > 1 %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.number|add:'-5' }}">&hellip;</a>
+          </li>
+          {% endif %}
+
           {% for page in page_obj.paginator.page_range %}
-            {% if page == current_page %}
+            {% if page == page_obj.number %}
             <li class="page-item current"><a class="page-link">{{ page }}</a></li>
-            {% else %}
-            <li class="page-item other"><a class="page-link" href="?page={{page}}">{{ page }}</a></li>
+            {% elif page > page_obj.number|add:'-5' and page < page_obj.number|add:'5' %}
+            <li class="page-item other"><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
             {% endif %}
           {% endfor %}
+
+          {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.number|add:'5' }}">&hellip;</a>
+          </li>
+          {% endif %}
+
           {% if page_obj.has_next %}
           <li class="page-item">
-            <a class="page-link" href="?page={{current_page|add:1}}" aria-label="Next">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
               <span aria-hidden="true">&raquo;</span>
             </a>
           </li>
           {% endif %}
         </ul>
-        {% endif %}
       </nav>
+      {% endif %}
 
     </main>
     
