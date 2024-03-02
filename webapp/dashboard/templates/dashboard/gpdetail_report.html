@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    {{ num_err|json_script:"num_err" }}
+    {{ num_likely|json_script:"num_likely" }}
+    {{ num_potential|json_script:"num_potential" }}
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js" integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -43,12 +47,234 @@
     
     <main class="col-md-9 col-lg-10 px-md-4" style="margin-left: 230px;">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);">GP Detail</h3>
+      <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);"><a href="/gp-detail/loc">GP Detail</a></h3>
       </div>
 
-      <h4>id: {{ report_id }}</h4>
+      <div class="gp-info">
+        <h4>{{gp.gp}}
+        </span><a href="/gp-detail/{{gp.lad}}" class="back report-back"><i class="fa fa-angle-left" aria-hidden="true"></i>Back</a>
+        </h4>
+        <div class="loc-info">
+        <p>{{gp.lad}}, {{gp.postcode}}
+          <span class="update-time">Last updated: {{update_time}}</span>
+          <a class="main-web" href="{{gp.url}}" target="_blank">Visit main website</a>
+        </p>
+        </div>
+      </div>
 
+      <!-- cards -->
+      <div class="num_report cards row row-cols-1 row-cols-md-3 g-2">
+        <div class="col">
+        <div class="card">
+            <div class="card-body data-body">
+            <h5 class="card-title data-label" style="overflow: hidden;">Errors</h5>
+            <p class="card-text data-text">{{ num_err }}</p>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card">
+            <div class="card-body data-body">
+            <h5 class="card-title data-label" style="overflow: hidden;">Likely problems</h5>
+            <p class="card-text data-text">{{ num_likely }}</p>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card">
+            <div class="card-body data-body">
+            <h5 class="card-title data-label" style="overflow: hidden;">Potential problems</h5>
+            <p class="card-text data-text">{{ num_potential }}</p>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card">
+            <div class="card-body data-body">
+            <h5 class="card-title data-label" style="overflow: hidden;">A level errors</h5>
+            <p class="card-text data-text">{{ num_A }}</p>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card">
+            <div class="card-body data-body">
+            <h5 class="card-title data-label" style="overflow: hidden;">AA level errors</h5>
+            <p class="card-text data-text">{{ num_AA }}</p>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card">
+            <div class="card-body data-body">
+            <h5 class="card-title data-label" style="overflow: hidden;">AAA level errors</h5>
+            <p class="card-text data-text">{{ num_AAA }}</p>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    {% if num_err != 0 or num_likely != 0 or num_potential != 0 %}
+    <div class="card report-bar">
+        <div id="report-bar"></div>
+        <script type="module" src="{% static 'dashboard/report_bar.js' %}"></script>
+    </div>
+    {% endif %}
+
+    {% if num_err != 0 %}
+    <div class="card err-table">
+      <div class="card-header">
+        <div class="btn-group table-tab" role="group" aria-label="Basic radio toggle button group">
+
+          <input type="radio" class="btn-check" name="btnradioC" id="btnradioC1" autocomplete="off" checked onclick="changedata(0)">
+          <label class="btn btnC1" for="btnradioC1" style="background-color: rgb(138, 169, 219);color: white;">A Errors</label>
+
+          <input type="radio" class="btn-check" name="btnradioC" id="btnradioC2" autocomplete="off" onclick="changedata(1)">
+          <label class="btn btnC2" for="btnradioC2">AA Errors</label>
+        
+          <input type="radio" class="btn-check" name="btnradioC" id="btnradioC3" autocomplete="off" onclick="changedata(2)">
+          <label class="btn btnC3" for="btnradioC3">AAA Errors</label>
+
+        </div>
+      </div>
+
+      <div id="report">
+        <table class="table table-sm" id="reportA">
+        {% if num_A != 0 %}
+          <thead class="t-head report-headA">
+            <tr>
+              <th scope="col" style="border-top-left-radius:5px;">ID</th>
+              <th scope="col">Success Criteria</th>
+              <th scope="col">Error</th>
+              <th scope="col">Description</th>
+              <th scope="col" style="border-top-right-radius:5px;">Num</th>
+            </tr>
+          </thead>
+          <tbody class="t-body report-bodyA">
+            {% for err in A_err %}
+            <tr>
+              <th scope="row">{{ err.id }}</th>
+              <td>{{ err.sc|slice:"17:" }}</td>
+              <td>{{ err.msg }}</td>
+              <td>{{ err.descr }}</td>
+              <td>{{ err.err_num }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <div id="no-A-msg"></div>
+        {% else %}
+        <div id="no-A-msg">No A level errors</div>
+        {% endif %}
+        </table>
+        
+
+        <table class="table table-sm" id="reportAA">
+        {% if num_AA != 0 %}
+          <thead class="t-head report-headAA">
+            <tr>
+              <th scope="col" style="border-top-left-radius:5px;">ID</th>
+              <th scope="col">Success Criteria</th>
+              <th scope="col">Error</th>
+              <th scope="col">Description</th>
+              <th scope="col" style="border-top-right-radius:5px;">Num</th>
+            </tr>
+          </thead>
+          <tbody class="t-body report-bodyAA">
+            {% for err in AA_err %}
+            <tr>
+              <th scope="row">{{ err.id }}</th>
+              <td>{{ err.sc|slice:"17:" }}</td>
+              <td>{{ err.msg }}</td>
+              <td>{{ err.descr }}</td>
+              <td>{{ err.err_num }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <div id="no-AA-msg"></div>
+        {% else %}
+        <div id="no-AA-msg">No AA level errors</div>
+        {% endif %}
+        </table>
+
+        <table class="table table-sm" id="reportAAA">
+        {% if num_AAA != 0 %}
+          <thead class="t-head report-headAAA">
+            <tr>
+              <th scope="col" style="border-top-left-radius:5px;">ID</th>
+              <th scope="col">Success Criteria</th>
+              <th scope="col">Error</th>
+              <th scope="col">Description</th>
+              <th scope="col" style="border-top-right-radius:5px;">Num</th>
+            </tr>
+          </thead>
+          <tbody class="t-body report-bodyAAA">
+            {% for err in AAA_err %}
+            <tr>
+              <th scope="row">{{ err.id }}</th>
+              <td>{{ err.sc|slice:"17:" }}</td>
+              <td>{{ err.msg }}</td>
+              <td>{{ err.descr }}</td>
+              <td>{{ err.err_num }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <div id="no-AAA-msg"></div>
+        {% else %}
+        <div id="no-AAA-msg"><span>No AAA level errors</span></div>
+        {% endif %}
+        </table>
+      </div>
+
+      <script>
+        function changedata(num) {
+            if(num==0) {
+                document.getElementById('reportA').style.display = 'block';
+                document.getElementById('reportAA').style.display = 'none';
+                document.getElementById('reportAAA').style.display = 'none';
+                document.getElementsByClassName('btnC1')[0].style.backgroundColor='rgb(138, 169, 219)';
+                document.getElementsByClassName('btnC2')[0].style.backgroundColor='transparent';
+                document.getElementsByClassName('btnC3')[0].style.backgroundColor='transparent';
+                document.getElementsByClassName('btnC1')[0].style.color='white';
+                document.getElementsByClassName('btnC2')[0].style.color='black';
+                document.getElementsByClassName('btnC3')[0].style.color='black';
+                document.getElementById('no-A-msg').style.display = 'block';
+                document.getElementById('no-AA-msg').style.display = 'none';
+                document.getElementById('no-AAA-msg').style.display = 'none';
+
+            }
+            else if(num==1) {
+                document.getElementById('reportA').style.display = 'none';
+                document.getElementById('reportAA').style.display = 'block';
+                document.getElementById('reportAAA').style.display = 'none';
+                document.getElementsByClassName('btnC1')[0].style.backgroundColor='transparent';
+                document.getElementsByClassName('btnC2')[0].style.backgroundColor='rgb(138, 169, 219)';
+                document.getElementsByClassName('btnC3')[0].style.backgroundColor='transparent';
+                document.getElementsByClassName('btnC1')[0].style.color='black';
+                document.getElementsByClassName('btnC2')[0].style.color='white';
+                document.getElementsByClassName('btnC3')[0].style.color='black';
+                document.getElementById('no-A-msg').style.display = 'none';
+                document.getElementById('no-AA-msg').style.display = 'block';
+                document.getElementById('no-AAA-msg').style.display = 'none';
+            }
+            else if(num==2) {
+                document.getElementById('reportA').style.display = 'none';
+                document.getElementById('reportAA').style.display = 'none';
+                document.getElementById('reportAAA').style.display = 'block';
+                document.getElementsByClassName('btnC1')[0].style.backgroundColor='transparent';
+                document.getElementsByClassName('btnC2')[0].style.backgroundColor='transparent';
+                document.getElementsByClassName('btnC3')[0].style.backgroundColor='rgb(138, 169, 219)';
+                document.getElementsByClassName('btnC1')[0].style.color='black';
+                document.getElementsByClassName('btnC2')[0].style.color='black';
+                document.getElementsByClassName('btnC3')[0].style.color='white';
+                document.getElementById('no-A-msg').style.display = 'none';
+                document.getElementById('no-AA-msg').style.display = 'none';
+                document.getElementById('no-AAA-msg').style.display = 'block';
+            }
+        }
+    </script>
       
+    {% endif %}
+  
     </main>
     
 </body>

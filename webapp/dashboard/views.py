@@ -331,12 +331,58 @@ def gpdetail_lad(request, lad):
     return HttpResponse(template.render(context, request))
 
 
-def gpdetail_report(request, report_id):
+def _get_err_detail(err_list, err_info):
+    err_detail = []
+    for err in Counter(err_list).most_common():
+        # [0]: id, [1]: number
+        err_id = err[0]
+        err_num = err[1]
+        sc = err_info[err_id]['sc']
+        msg = err_info[err_id]['msg']
+        descr = err_info[err_id]['descr']
+        err_detail.append({'id': err_id, 'err_num': err_num, 'sc': sc, 'msg': msg, 'descr': descr})
+    return err_detail
+
+
+def gpdetail_report(request, gp_id, report_id):
+    gp = UrlTable.objects.filter(id=gp_id)[0]
+    report = Report.objects.filter(id=report_id)
+    if len(report) == 0:
+        return HttpResponse('Page not found.')
+    r = report[0]
+    
+    # get all error detail info
+    with open('dashboard/data/err_info.json') as f:
+        err_info = json.load(f)
+    if r.num_A == 0:
+        A_err = []
+    else:
+        A_err = _get_err_detail(r.err_A, err_info)
+    if r.num_AA == 0:
+        AA_err = []
+    else:
+        AA_err = _get_err_detail(r.err_AA, err_info)
+    if r.num_AAA == 0:
+        AAA_err = []
+    else:
+        AAA_err = _get_err_detail(r.err_AAA, err_info)
+
     context = {
-        'report_id': report_id
+        'gp': gp,
+        'num_err': r.num_err,
+        'num_likely': r.num_likely,
+        'num_potential': r.num_potential,
+        'num_A': r.num_A,
+        'num_AA': r.num_AA,
+        'num_AAA': r.num_AAA,
+        'A_err': A_err,
+        'AA_err': AA_err,
+        'AAA_err': AAA_err,
+        'update_time': r.start_time
     }
     template = loader.get_template('dashboard/gpdetail_report.html')
     return HttpResponse(template.render(context, request))
+
 
 def trend(request):
     template = loader.get_template('dashboard/trend.html')
