@@ -46,7 +46,7 @@
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h3 style="font-family: sans-serif;color: rgb(117, 146, 191);"><a href="/gp-detail/loc">GP Detail</a></h3>
         <form class="d-flex" role="search" method="get" action="{% url 'gpdetail_loc' %}">
-          <input class="form-control me-2" type="search" placeholder="Search GP" aria-label="Search" name="search">
+          <input class="form-control me-2" type="search" placeholder="Enter GP/LOC/Postcode" aria-label="Search" name="search">
           <button class="btn search-btn" type="submit">Search</button>
         </form>
         </div>
@@ -75,7 +75,7 @@
             <!-- <h5>{{letter}}</h5> -->
             <ul class="partial-districts">
               {% for name in names %}
-                <li><a href="/gp-detail/{{name}}">{{ name }}</a></li>
+                <li><a href="/gp-detail/lad/{{name}}">{{ name }}</a></li>
               {% endfor %}
             </ul>
             <div></div>

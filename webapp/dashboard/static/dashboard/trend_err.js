@@ -58,7 +58,9 @@ option = {
     }
   ],
   grid: {
-    top: 120
+    top: 120,
+    left: '12%',
+    width: '80%'
   },
   xAxis: {
     data: xAxisData

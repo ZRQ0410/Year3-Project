@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import time
 import json
-import requests
 import itertools
 from collections import Counter
 import re

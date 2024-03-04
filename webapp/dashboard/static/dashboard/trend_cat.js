@@ -33,7 +33,7 @@ setTimeout(function () {
       width: 450,
       top: 300,
       bottom: 30,
-      left: 63
+      left: '11%'
     },
     series: [
       {
