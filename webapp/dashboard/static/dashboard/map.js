@@ -80,7 +80,7 @@ $.get('../../static/dashboard/local_admin.json', function (geoJson) {
       // remove punctuation, replace whitespace with -
       // var punctuation = /[\.,?!]/g;
       // var s = args.data.name.replace(punctuation, "").replace(/ /g,"-");;
-      location.href = '/gp-detail/' + args.data.name;
+      location.href = '/gp-detail/lad/' + args.data.name;
     }
 })
 });

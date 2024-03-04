@@ -52,7 +52,7 @@
 
       <div class="gp-info">
         <h4>{{gp.gp}}
-        </span><a href="/gp-detail/{{gp.lad}}" class="back report-back"><i class="fa fa-angle-left" aria-hidden="true"></i>Back</a>
+        </span><a href="/gp-detail/lad/{{gp.lad}}" class="back report-back"><i class="fa fa-angle-left" aria-hidden="true"></i>Back</a>
         </h4>
         <div class="loc-info">
         <p>{{gp.lad}}, {{gp.postcode}}
@@ -63,6 +63,7 @@
       </div>
 
       <!-- cards -->
+      <div class="left-card">
       <div class="num_report cards row row-cols-1 row-cols-md-3 g-2">
         <div class="col">
         <div class="card">
@@ -75,7 +76,7 @@
         <div class="col">
         <div class="card">
             <div class="card-body data-body">
-            <h5 class="card-title data-label" style="overflow: hidden;">Likely problems</h5>
+            <h5 class="card-title data-label" style="overflow: hidden;">Likely Problems</h5>
             <p class="card-text data-text">{{ num_likely }}</p>
             </div>
         </div>
@@ -83,7 +84,7 @@
         <div class="col">
         <div class="card">
             <div class="card-body data-body">
-            <h5 class="card-title data-label" style="overflow: hidden;">Potential problems</h5>
+            <h5 class="card-title data-label" style="overflow: hidden;">Potential Problems</h5>
             <p class="card-text data-text">{{ num_potential }}</p>
             </div>
         </div>
@@ -91,7 +92,7 @@
         <div class="col">
         <div class="card">
             <div class="card-body data-body">
-            <h5 class="card-title data-label" style="overflow: hidden;">A level errors</h5>
+            <h5 class="card-title data-label" style="overflow: hidden;">A Level Errors</h5>
             <p class="card-text data-text">{{ num_A }}</p>
             </div>
         </div>
@@ -99,7 +100,7 @@
         <div class="col">
         <div class="card">
             <div class="card-body data-body">
-            <h5 class="card-title data-label" style="overflow: hidden;">AA level errors</h5>
+            <h5 class="card-title data-label" style="overflow: hidden;">AA Level Errors</h5>
             <p class="card-text data-text">{{ num_AA }}</p>
             </div>
         </div>
@@ -107,19 +108,20 @@
         <div class="col">
         <div class="card">
             <div class="card-body data-body">
-            <h5 class="card-title data-label" style="overflow: hidden;">AAA level errors</h5>
+            <h5 class="card-title data-label" style="overflow: hidden;">AAA Level Errors</h5>
             <p class="card-text data-text">{{ num_AAA }}</p>
             </div>
         </div>
         </div>
-    </div>
+      </div>
 
-    {% if num_err != 0 or num_likely != 0 or num_potential != 0 %}
-    <div class="card report-bar">
-        <div id="report-bar"></div>
-        <script type="module" src="{% static 'dashboard/report_bar.js' %}"></script>
+      {% if num_err != 0 or num_likely != 0 or num_potential != 0 %}
+      <div class="card report-bar">
+          <div id="report-bar"></div>
+          <script type="module" src="{% static 'dashboard/report_bar.js' %}"></script>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
 
     {% if num_err != 0 %}
     <div class="card err-table">
@@ -144,7 +146,7 @@
           <thead class="t-head report-headA">
             <tr>
               <th scope="col" style="border-top-left-radius:5px;">ID</th>
-              <th scope="col">Success Criteria</th>
+              <th scope="col">Criteria</th>
               <th scope="col">Error</th>
               <th scope="col">Description</th>
               <th scope="col" style="border-top-right-radius:5px;">Num</th>
@@ -173,7 +175,7 @@
           <thead class="t-head report-headAA">
             <tr>
               <th scope="col" style="border-top-left-radius:5px;">ID</th>
-              <th scope="col">Success Criteria</th>
+              <th scope="col">Criteria</th>
               <th scope="col">Error</th>
               <th scope="col">Description</th>
               <th scope="col" style="border-top-right-radius:5px;">Num</th>
@@ -201,7 +203,7 @@
           <thead class="t-head report-headAAA">
             <tr>
               <th scope="col" style="border-top-left-radius:5px;">ID</th>
-              <th scope="col">Success Criteria</th>
+              <th scope="col">Criteria</th>
               <th scope="col">Error</th>
               <th scope="col">Description</th>
               <th scope="col" style="border-top-right-radius:5px;">Num</th>
