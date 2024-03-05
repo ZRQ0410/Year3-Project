@@ -626,6 +626,9 @@ h3 a {
     background-color: #557bb7;
 }
 input.form-control {
-    width: 200px;
+    width: 238px;
     font-size: 14px;
+}
+input.form-control::placeholder {
+    color: #838d96;
 }
