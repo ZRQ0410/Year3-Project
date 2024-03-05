@@ -37,18 +37,6 @@ def home(request):
     # return render(request, 'dashboard/dashboard.html')
 
 
-def test(request):
-    r = Report.objects.filter(start_time='2024-02-25 14:33:48.000000')
-
-    
-    template = loader.get_template('dashboard/test.html')
-    context = {
-        'test': r
-    }
-
-    return HttpResponse(template.render(context, request))
-
-
 def _analyze_district():
     """
     Analyze reports for each district:

@@ -14,7 +14,6 @@ urlpatterns = [
     path('gp-detail/loc/<str:letter>', views.gpdetail_loc, name='gpdetail_loc'),
     path('gp-detail/lad/<str:lad>', views.gpdetail_lad),
     path('gp-detail/report/<int:gp_id>_<int:report_id>', views.gpdetail_report),
-    path('test/', views.test),
     # path('get_districts/', views.get_districts),
 ]
 
