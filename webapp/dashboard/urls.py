@@ -7,13 +7,13 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore, register_job
 
 urlpatterns = [
-    path('', views.home),
-    path('districts/', views.districts),
-    path('trend/', views.trend),
+    path('', views.home, name='home'),
+    path('districts/', views.districts, name='districts'),
+    path('trend/', views.trend, name='trend'),
     path('gp-detail/loc/', views.gpdetail_loc, name='gpdetail_loc'),
     path('gp-detail/loc/<str:letter>', views.gpdetail_loc, name='gpdetail_loc'),
-    path('gp-detail/lad/<str:lad>', views.gpdetail_lad),
-    path('gp-detail/report/<int:gp_id>_<int:report_id>', views.gpdetail_report),
+    path('gp-detail/lad/<str:lad>', views.gpdetail_lad, name='gp_list'),
+    path('gp-detail/report/<int:gp_id>_<int:report_id>', views.gpdetail_report, name='gp_report'),
     # path('get_districts/', views.get_districts),
 ]
 

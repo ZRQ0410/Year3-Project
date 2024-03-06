@@ -306,6 +306,10 @@ def gpdetail_loc(request, letter='A'):
         return HttpResponse(template.render(context, request))
     
     else:
+        letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        letter = letter.upper()
+        if letter not in letters:
+            return HttpResponse(status=404)
         # get unique locations
         districts = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct()
         dist = [i['lad'] for i in districts]
@@ -324,6 +328,8 @@ def gpdetail_loc(request, letter='A'):
 
 def gpdetail_lad(request, lad):
     evaluated_gps = UrlTable.objects.filter(lad=lad, report_id__isnull=False, report__num_err__isnull=False).order_by('gp')
+    if len(evaluated_gps) == 0:
+        return HttpResponse(status=404)
     for gp in evaluated_gps:
         url = gp.url
         if url[-1] == '/':
@@ -357,10 +363,12 @@ def _get_err_detail(err_list, err_info):
 
 
 def gpdetail_report(request, gp_id, report_id):
-    gp = UrlTable.objects.filter(id=gp_id)[0]
+    gp = UrlTable.objects.filter(id=gp_id)
     report = Report.objects.filter(id=report_id)
-    if len(report) == 0:
-        return HttpResponse('Page not found.')
+    if (len(report) == 0) or (len(gp) == 0) or (gp[0].report_id != report[0].id):
+        # return HttpResponse('Page not found.')
+        return HttpResponse(status=404)
+    gp = gp[0]
     r = report[0]
     
     # get all error detail info
