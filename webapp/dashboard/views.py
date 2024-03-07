@@ -171,33 +171,6 @@ def _analyze_overall():
     result['num_websites'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).count()
     result['num_districts'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False, lad__isnull=False).values('lad').distinct().count()
 
-    # err_query = UrlTable.objects.filter(report_id__isnull=False, report__err__isnull=False).values('report__err')
-    # err = [e['report__err'] for e in err_query]
-    # top_err = []
-    # err_counts = _get_top10(err)
-    # for issue in err_counts:
-    #     sc, msg, descr = _get_detail(issue[0])
-    #     top_err.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
-    # result['top_err'] = top_err
-
-    # likely_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__likely')
-    # likely = [l['report__likely'] for l in likely_query]
-    # top_likely = []
-    # likely_counts = _get_top10(likely)
-    # for issue in likely_counts:
-    #     sc, msg, descr = _get_detail(issue[0])
-    #     top_likely.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
-    # result['top_likely'] = top_likely
-
-    # potential_query = UrlTable.objects.filter(report_id__isnull=False, report__likely__isnull=False).values('report__potential')
-    # potential = [p['report__potential'] for p in potential_query]
-    # top_potential = []
-    # potential_counts = _get_top10(potential)
-    # for issue in potential_counts:
-    #     sc, msg, descr = _get_detail(issue[0])
-    #     top_potential.append({"id": issue[0], "num": issue[1], "sc": sc, "msg": msg, "descr": descr})
-    # result['top_potential'] = top_potential
-
     err_A_query = UrlTable.objects.filter(report_id__isnull=False, report__err_A__isnull=False).values('report__err_A')
     err_A = [e['report__err_A'] for e in err_A_query]
     top_A_err = []
@@ -226,10 +199,6 @@ def _analyze_overall():
     result['top_AAA_err'] = top_AAA_err
 
     result['num_p'], result['num_o'], result['num_u'], result['num_r'] = _classify_errs()
-
-    # result['num_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_err'))['report__num_err__sum']
-    # result['num_likely'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_likely'))['report__num_likely__sum']
-    # result['num_potential'] = UrlTable.objects.filter(report_id__isnull=False, report__num_err__isnull=False).aggregate(Sum('report__num_potential'))['report__num_potential__sum']
 
     result['num_A_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_A__isnull=False).aggregate(Sum('report__num_A'))['report__num_A__sum']
     result['num_AA_err'] = UrlTable.objects.filter(report_id__isnull=False, report__num_A__isnull=False).aggregate(Sum('report__num_AA'))['report__num_AA__sum']
@@ -271,12 +240,12 @@ def districts(request):
     return HttpResponse(template.render(context, request))
 
 
-def _url_form(location):
-    # strip punctuation
-    loc = location.translate(str.maketrans('', '', string.punctuation))
-    # replace whitespace with -
-    loc = re.sub(r"\s+", '-', loc)
-    return loc
+# def _url_form(location):
+#     # strip punctuation
+#     loc = location.translate(str.maketrans('', '', string.punctuation))
+#     # replace whitespace with -
+#     loc = re.sub(r"\s+", '-', loc)
+#     return loc
 
 
 def gpdetail_loc(request, letter='A'):

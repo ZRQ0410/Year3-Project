@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from dashboard.models import UrlTable, Report
+from dashboard.views import _analyze_district, _analyze_overall, _get_top10
+import requests
 
 class TestViews(TestCase):
 
@@ -15,7 +17,12 @@ class TestViews(TestCase):
         self.report1 = Report.objects.create(
             id = 1,
             url = 'report1.com',
-            num_err = 5
+            num_err = 5,
+            num_likely = 10,
+            num_potential = 20,
+            num_A = 1,
+            num_AA = 1,
+            num_AAA = 3,
         )
         self.report2 = Report.objects.create(
             id = 2,
@@ -95,3 +102,25 @@ class TestViews(TestCase):
         response = self.client.get(url)
         self.assertEquals(response.status_code, 404)
         self.assertTemplateNotUsed(response, 'dashboard/gpdetail_report.html')
+    
+    def test_achecker_api_response(self):
+        url = 'https://websiteaccessibilitychecker.com/checkacc.php?uri='+'https://www.djangoproject.com/'+'&%20id=b0a02df9fec9f65d0da2fc658b3b393fc689a3eb&output=html&guide=WCAG2-AAA'
+        res = requests.get(url)
+        self.assertEqual(res.status_code, 200)
+
+    def test_postcode_api_response(self):
+        url = "https://api.postcodes.io/postcodes/" + 'm156pf'
+        res = requests.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()['result']['admin_district'], 'Manchester')
+    
+    def test_analyze_district(self):
+        result = _analyze_district()
+        data = {'Manchester': {'num_evaluated': 1, 'mean_err': 5.0, 'mean_likely': 10.0, 'mean_potential': 20.0, 'A_percent': 0.0, 'AA_percent': 0.0, 'AAA_percent': 0.0}}
+        self.assertEqual(result, data)
+
+    def test_analyze_overall(self):
+        result = _analyze_overall()
+        data = {'num_websites': 1, 'num_districts': 1, 'top_A_err': [], 'top_AA_err': [], 'top_AAA_err': [], 'num_p': 0, 'num_o': 0, 'num_u': 0, 'num_r': 0, 'num_A_err': 1, 'num_AA_err': 1, 'num_AAA_err': 3}
+        self.assertEqual(result, data)
+
