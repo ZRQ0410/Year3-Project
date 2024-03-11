@@ -86,5 +86,3 @@ $.get('../../static/dashboard/local_admin.json', function (geoJson) {
 });
 
 option && myChart.setOption(option);
-
-

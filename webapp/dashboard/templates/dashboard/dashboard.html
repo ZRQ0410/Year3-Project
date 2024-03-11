@@ -170,6 +170,14 @@
             </tbody>
           </table>
         </div>
+    
+    <script>
+      $(window).on('resize', function(){
+      $("[_echarts_instance_]").each(function(){
+          window.echarts.getInstanceById($(this).attr('_echarts_instance_')).resize()
+      });
+    });
+    </script>
 
     </main>
 
